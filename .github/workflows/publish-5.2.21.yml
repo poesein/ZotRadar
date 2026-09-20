@@ -1,0 +1,30 @@
+name: Publish ZotRadar 5.2.21
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-5.2.21.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.repository == 'poesein/ZotRadar'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify archives
+        run: cd releases/5.2.21 && sha256sum -c SHA256SUMS.txt
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v5.2.21 \
+            releases/5.2.21/ZotRadar-5.2.21-zotero10.xpi \
+            releases/5.2.21/ZotRadar-5.2.21-source.zip \
+            releases/5.2.21/SHA256SUMS.txt \
+            --target "$GITHUB_SHA" \
+            --title 'ZotRadar 5.2.21' \
+            --notes 'Zotero 10 native literature radar. The public factory configuration contains Protein Design only. See the Chinese and English README and release audit. Offline package checks passed; clean-profile live acceptance remains pending.'

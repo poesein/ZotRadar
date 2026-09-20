@@ -32,6 +32,7 @@ ZotRadar 是一款适用于 Zotero 10 的本地文献雷达插件。它从订阅
 如果升级已有安装，插件会保留用户数据目录中的订阅、Feed、评估卡、反馈和偏好；安装新 XPI 不会重置这些配置。出厂示例只在新资料或尚未自定义配置时生效。
 
 ## 典型流程
+<img width="1448" height="1086" alt="image" src="https://github.com/user-attachments/assets/388731eb-0c52-4acd-9e25-2a0f9588b142" />
 
 1. 在「订阅」中选择或新建研究方向，为它绑定 Feed 和评估卡。
 2. 在「评分」中检查领域边界：DIRECT、CONTEXTUAL、TRANSFERABLE、OUT_OF_SCOPE；必要时编辑主题、别名和排除项。

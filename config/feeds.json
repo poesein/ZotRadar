@@ -1,0 +1,22 @@
+{
+  "feeds": [
+    {
+      "id": "europe_pmc_protein_design_published",
+      "name": "Europe PMC Protein Design (published)",
+      "type": "europe_pmc_api",
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search",
+      "query": "(TITLE_ABS:\"protein design\" OR TITLE_ABS:\"de novo protein design\" OR TITLE_ABS:\"generative protein\" OR TITLE_ABS:\"protein binder design\" OR TITLE_ABS:\"binder design\" OR TITLE_ABS:\"protein sequence design\") NOT SRC:PPR sort_date:y",
+      "enabled": true,
+      "max_items": 100
+    },
+    {
+      "id": "europe_pmc_protein_design_preprints",
+      "name": "Europe PMC Protein Design (preprints)",
+      "type": "europe_pmc_api",
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search",
+      "query": "(TITLE_ABS:\"protein design\" OR TITLE_ABS:\"de novo protein design\" OR TITLE_ABS:\"generative protein\" OR TITLE_ABS:\"protein binder design\" OR TITLE_ABS:\"binder design\" OR TITLE_ABS:\"protein sequence design\") AND SRC:PPR sort_date:y",
+      "enabled": true,
+      "max_items": 100
+    }
+  ]
+}

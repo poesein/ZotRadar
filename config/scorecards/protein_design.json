@@ -1,0 +1,137 @@
+{
+  "schema_version": "scorecard-v1",
+  "id": "protein_design",
+  "version": 1,
+  "label": "Protein Design",
+  "description": "Computational and experimental protein design, including sequence/structure design, binder and enzyme design, generative models, design validation, and reusable design workflows.\n",
+  "language": "zh-CN",
+  "scope": {
+    "direct": {
+      "description": "The paper directly develops or validates a protein-design method, model, workflow, or designed protein.",
+      "anchors": [
+        "protein design",
+        "de novo protein",
+        "binder design",
+        "enzyme design",
+        "sequence design"
+      ],
+      "aliases": [
+        "generative protein design",
+        "computational protein design"
+      ]
+    },
+    "contextual": {
+      "description": "The paper studies structure prediction or protein engineering that directly supports design but is not itself primarily a design study.",
+      "anchors": [
+        "protein engineering",
+        "structure prediction",
+        "inverse folding",
+        "sequence optimization"
+      ],
+      "aliases": []
+    },
+    "transferable": {
+      "description": "Target-agnostic algorithms, benchmarks, or experimental screens that are clearly reusable for protein design.",
+      "topics": [
+        {
+          "id": "structure_modeling",
+          "label": "结构建模方法",
+          "description": "Structure prediction/refinement methods transferable to design workflows.",
+          "anchors": [
+            "structure prediction",
+            "structural modeling",
+            "folding model"
+          ],
+          "aliases": []
+        },
+        {
+          "id": "high_throughput_validation",
+          "label": "高通量验证",
+          "description": "Screening or multiplexed validation useful for designed proteins.",
+          "anchors": [
+            "deep mutational scanning",
+            "high-throughput screening",
+            "display library"
+          ],
+          "aliases": [
+            "DMS"
+          ]
+        }
+      ]
+    },
+    "exclusions": {
+      "description": "Do not classify ordinary protein-structure papers as direct design unless a design objective or designed sequence is present.",
+      "examples": [
+        "structure determination without design",
+        "generic docking without protein design"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "id": "sequence_design",
+      "label": "序列设计",
+      "description": "Sequence generation, inverse folding, or sequence optimization.",
+      "anchors": [
+        "sequence design",
+        "inverse folding"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "structure_design",
+      "label": "结构设计",
+      "description": "Backbone/topology/scaffold design.",
+      "anchors": [
+        "backbone design",
+        "scaffold design",
+        "de novo fold"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "binder_design",
+      "label": "结合蛋白设计",
+      "description": "Binder, antibody, peptide, or interaction-interface design.",
+      "anchors": [
+        "binder design",
+        "interface design"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "experimental_validation",
+      "label": "实验验证",
+      "description": "Experimental validation of designed proteins.",
+      "anchors": [
+        "experimental validation",
+        "binding assay",
+        "expression validation"
+      ],
+      "aliases": []
+    }
+  ],
+  "rules": {
+    "direct_requires_any_anchor": false,
+    "exclusion_priority": "high",
+    "title_anchor_boost": true,
+    "allow_contextual_without_direct_anchor": true,
+    "allow_transferable_without_domain_anchor": true
+  },
+  "semantic_profile": {
+    "positive_descriptions": [
+      "Design proteins or sequences with computational/generative methods and experimentally validate the designed products."
+    ],
+    "negative_descriptions": [
+      "Protein structure or function studies with no protein-design objective."
+    ],
+    "transferable_descriptions": [
+      "Reusable structure modeling or high-throughput validation methods for protein design."
+    ]
+  },
+  "metadata": {
+    "created_at": null,
+    "updated_at": null,
+    "notes": "Generic cross-domain example scorecard."
+  }
+}

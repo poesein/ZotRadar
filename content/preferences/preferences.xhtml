@@ -1,0 +1,31 @@
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml" id="zotradar-preferences" data-search-strings-raw="ZotRadar,Ollama,Qwen,BGE,easyScholar,Schedule,Diagnostics" onload="ZotRadarPrefs.init()">
+  <html:div class="zr-pref-hero">
+    <html:div class="zr-pref-title">ZotRadar</html:div>
+    <html:div id="zr-pref-intro" class="zr-pref-subtitle">Zotero-native literature radar.</html:div>
+  </html:div>
+  <html:details class="zr-pref-panel" open="open">
+    <html:summary id="zr-pref-settings-title">Settings</html:summary>
+    <html:p id="zr-pref-settings-desc" class="zr-pref-note">Program, models and scheduler settings.</html:p>
+    <html:div id="zr-pref-settings-fields" class="zr-settings-fields">Loading settings…</html:div>
+    <html:div class="zr-pref-actions">
+      <html:button id="zr-pref-save">Save settings</html:button>
+      <html:button id="zr-pref-test-ollama">Test Ollama</html:button>
+      <html:button id="zr-pref-test-easyscholar">Test easyScholar</html:button>
+      <html:button id="zr-pref-open-dashboard">Manage subscriptions &amp; Scoring…</html:button>
+    </html:div>
+    <html:div id="zr-pref-status" class="zr-pref-note"/>
+  </html:details>
+  <html:details class="zr-pref-panel" open="open">
+    <html:summary id="zr-pref-system-title">System status</html:summary>
+    <html:div id="zr-pref-health-cards" class="zr-pref-health-grid"/>
+    <html:button id="zr-pref-system-refresh">Refresh system status</html:button>
+    <html:details class="zr-pref-raw"><html:summary id="zr-pref-raw-title">Technical details</html:summary>
+    <html:pre id="zr-pref-system-status" class="zr-pref-code">Loading system status…</html:pre>
+    </html:details>
+  </html:details>
+  <html:details class="zr-pref-panel">
+    <html:summary id="zr-pref-diagnostics-title">Startup diagnostics</html:summary>
+    <html:pre id="zr-pref-diagnostics" class="zr-pref-code">Loading diagnostics…</html:pre>
+    <html:button id="zr-pref-diagnostics-refresh">Refresh diagnostics</html:button>
+  </html:details>
+</vbox>

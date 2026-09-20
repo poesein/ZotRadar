@@ -1,0 +1,81 @@
+{
+  "schema_version": "scorecard-v1",
+  "id": "example_domain",
+  "version": 1,
+  "label": "Example Domain",
+  "description": "Define the durable scientific scope of this scorecard. Do not put short-term current-focus text or scoring weights here.\n",
+  "language": "zh-CN",
+  "scope": {
+    "direct": {
+      "description": "The core research object, question, or major result directly belongs to this domain.\n",
+      "anchors": [
+        "example target",
+        "example gene"
+      ],
+      "aliases": [
+        "example alias"
+      ]
+    },
+    "contextual": {
+      "description": "The paper studies a broader context, but has an explicit and substantive connection to this domain.\n",
+      "anchors": [
+        "example pathway"
+      ],
+      "aliases": []
+    },
+    "transferable": {
+      "description": "The biological target may be outside this domain, but the method, resource or analytical framework is meaningfully transferable.\n",
+      "topics": [
+        {
+          "id": "example_method",
+          "label": "Example transferable method",
+          "description": "Define when this transfer channel applies.",
+          "anchors": [
+            "example technique"
+          ],
+          "aliases": []
+        }
+      ]
+    },
+    "exclusions": {
+      "description": "Common false-positive patterns that must not be promoted by loose keyword overlap.",
+      "examples": [
+        "Example false positive pattern"
+      ]
+    }
+  },
+  "topics": [
+    {
+      "id": "topic_a",
+      "label": "Topic A",
+      "description": "What this topic covers.",
+      "anchors": [
+        "example keyword"
+      ],
+      "aliases": []
+    }
+  ],
+  "rules": {
+    "direct_requires_any_anchor": false,
+    "exclusion_priority": "high",
+    "title_anchor_boost": true,
+    "allow_contextual_without_direct_anchor": true,
+    "allow_transferable_without_domain_anchor": true
+  },
+  "semantic_profile": {
+    "positive_descriptions": [
+      "Typical highly relevant papers in this domain."
+    ],
+    "negative_descriptions": [
+      "Typical false positives for this domain."
+    ],
+    "transferable_descriptions": [
+      "Typical cross-domain methods or resources worth retaining."
+    ]
+  },
+  "metadata": {
+    "created_at": null,
+    "updated_at": null,
+    "notes": "Template only; copy this file and change scientific semantics, not scoring math."
+  }
+}

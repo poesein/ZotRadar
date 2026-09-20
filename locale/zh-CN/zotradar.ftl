@@ -1,0 +1,15 @@
+zotradar-pane-header = ZotRadar
+    .label = ZotRadar
+    .tooltiptext = ZotRadar
+zotradar-open-dashboard = 打开 ZotRadar 面板
+    .label = 打开 ZotRadar 面板
+    .tooltiptext = 打开 ZotRadar 面板
+zotradar-screen-selected = 使用 ZotRadar 评分
+    .label = 使用 ZotRadar 评分
+    .tooltiptext = 使用 ZotRadar 评分
+zotradar-run-now = 立即运行 ZotRadar
+    .label = 立即运行 ZotRadar
+    .tooltiptext = 立即运行 ZotRadar
+zotradar-settings = ZotRadar 设置
+    .label = ZotRadar 设置
+    .tooltiptext = ZotRadar 设置

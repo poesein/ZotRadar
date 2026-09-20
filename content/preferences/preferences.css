@@ -1,0 +1,55 @@
+#zotradar-preferences{--zr-accent:#3986a9;--zr-muted:var(--fill-secondary,#667085);padding:4px 12px 24px}
+#zotradar-preferences .zr-pref-hero{padding:16px 18px;margin:4px 0 14px;border-radius:11px;background:linear-gradient(135deg,rgba(47,131,167,.18),rgba(127,191,210,.08));border:1px solid color-mix(in srgb,var(--zr-accent) 22%,transparent)}
+#zotradar-preferences .zr-pref-title{font-size:21px;font-weight:750}
+#zotradar-preferences .zr-pref-subtitle,#zotradar-preferences .zr-pref-note{font-size:11px;color:var(--zr-muted);line-height:1.5}
+#zotradar-preferences .zr-pref-panel{margin:5px 0 12px;padding:0 4px 10px}
+#zotradar-preferences .zr-pref-panel>summary{cursor:pointer;font-size:15px;font-weight:700;padding:8px 0;border-bottom:1px solid var(--material-border,#d9e0e5)}
+#zotradar-preferences .zr-pref-panel[open]>summary{border-bottom-color:var(--zr-accent)}
+#zotradar-preferences .zr-pref-raw{margin-top:10px}
+#zotradar-preferences .zr-pref-raw>summary{cursor:pointer;color:var(--zr-muted);font-size:11px}
+#zotradar-preferences .zr-pref-health-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+#zotradar-preferences .zr-pref-health-card{padding:11px;border:1px solid var(--material-border,#d9e0e5);border-radius:8px;background:var(--material-sidepane,#fafafa)}
+#zotradar-preferences .zr-pref-health-label{font-size:10px;color:var(--zr-muted)}
+#zotradar-preferences .zr-pref-health-value{font-size:16px;font-weight:700;margin-top:3px;overflow-wrap:anywhere}
+#zotradar-preferences .zr-pref-health-value[data-state=ok]{color:#248a62}
+#zotradar-preferences .zr-pref-health-value[data-state=bad]{color:#b64c4c}
+#zotradar-preferences hbox{gap:8px;margin:5px 0;flex-wrap:wrap}
+#zotradar-preferences button{padding:5px 10px}
+#zotradar-preferences .zr-settings-fields{display:grid;gap:10px;margin:9px 0}
+#zotradar-preferences .zr-settings-group{border:1px solid var(--material-border,#d9e0e5);border-radius:8px;padding:10px;background:var(--material-sidepane,#fafafa)}
+#zotradar-preferences .zr-settings-group>summary{cursor:pointer;font-weight:700;padding:2px 0 7px}
+#zotradar-preferences .zr-setting-row{display:grid;grid-template-columns:minmax(155px,1fr) minmax(220px,2fr);gap:12px;align-items:center;margin:7px 0}
+#zotradar-preferences .zr-setting-row input,#zotradar-preferences .zr-setting-row select,#zotradar-preferences .zr-setting-row textarea{width:100%;min-width:0;padding:4px 6px}
+#zotradar-preferences .zr-setting-row textarea{min-height:90px;resize:vertical}
+#zotradar-preferences .zr-setting-bool{display:flex;align-items:center;gap:8px}
+#zotradar-preferences .zr-setting-bool input{width:auto}
+#zotradar-preferences .zr-setting-note{opacity:.72;font-size:.9em}
+#zotradar-preferences .zr-secret-box{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#zotradar-preferences .zr-secret-box>input[type=password]{flex:1 1 220px}
+#zotradar-preferences .zr-secret-box .zr-setting-note{white-space:nowrap}
+@media(max-width:850px){#zotradar-preferences .zr-pref-health-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#zotradar-preferences .zr-setting-row{grid-template-columns:1fr}}
+/* Keep XHTML controls and the host XUL preferences panel on one type scale. */
+#zotradar-preferences{font-family:"Segoe UI","Microsoft YaHei UI",system-ui,sans-serif;font-size:13px;line-height:1.4;color:var(--text-primary,#202a35);padding:8px 16px 20px}
+#zotradar-preferences .zr-pref-hero{padding:13px 16px;margin:0 0 12px}
+#zotradar-preferences .zr-pref-title{font-size:19px;font-weight:700;line-height:1.25}
+#zotradar-preferences .zr-pref-subtitle,#zotradar-preferences .zr-pref-note{font-size:12px;line-height:1.45}
+#zotradar-preferences .zr-pref-panel{margin:4px 0 10px;padding:0 2px 8px}
+#zotradar-preferences .zr-pref-panel>summary{font-size:15px;line-height:1.4;padding:6px 0;font-weight:700}
+#zotradar-preferences .zr-settings-fields{gap:8px;margin:8px 0}
+#zotradar-preferences .zr-settings-group{padding:8px 12px;background:var(--material-sidepane,#fafbfc)}
+#zotradar-preferences .zr-settings-group>summary{font-size:13px;line-height:1.4;padding:2px 0 5px}
+#zotradar-preferences .zr-setting-row{grid-template-columns:minmax(140px,29%) minmax(0,1fr);gap:10px;align-items:center;margin:5px 0;max-width:920px}
+#zotradar-preferences .zr-setting-row label{font:inherit;font-size:13px;line-height:1.35}
+#zotradar-preferences .zr-setting-row input,#zotradar-preferences .zr-setting-row select,#zotradar-preferences .zr-setting-row textarea{font-family:inherit;font-size:13px;line-height:1.35;box-sizing:border-box;width:100%;max-width:560px;min-height:32px;padding:5px 8px;border:1px solid var(--material-border,#cbd5e1);border-radius:5px;background:var(--field-background,#fff);color:inherit}
+#zotradar-preferences .zr-setting-row textarea{min-height:78px}
+#zotradar-preferences .zr-setting-bool input,#zotradar-preferences .zr-secret-box input[type=checkbox]{width:16px;height:16px;min-height:0;margin:0;accent-color:#2563eb}
+#zotradar-preferences .zr-pref-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:10px 0}
+#zotradar-preferences button{font-family:inherit;font-size:13px;line-height:1.3;min-height:32px;padding:5px 11px;border:1px solid var(--material-border,#cbd5e1);border-radius:5px;background:var(--field-background,#fff);color:inherit;text-align:center;white-space:nowrap;cursor:pointer}
+#zotradar-preferences button:hover{border-color:#5892dc;background:#eff6ff}
+#zotradar-preferences .zr-pref-health-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+#zotradar-preferences .zr-pref-health-card{min-width:0;padding:8px 10px;border:1px solid var(--material-border,#d9e0e5);background:var(--material-sidepane,#fafbfc)}
+#zotradar-preferences .zr-pref-health-label{font-size:11px;line-height:1.35}
+#zotradar-preferences .zr-pref-health-value{font-size:15px;line-height:1.3;margin-top:2px}
+#zotradar-preferences .zr-pref-raw>summary{font-size:12px;padding:5px 0}
+#zotradar-preferences .zr-pref-code{font-family:Consolas,"Cascadia Mono",monospace;font-size:11px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;margin:8px 0;padding:8px;border:1px solid var(--material-border,#d9e0e5);border-radius:5px}
+@media(max-width:640px){#zotradar-preferences .zr-pref-health-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#zotradar-preferences .zr-setting-row{grid-template-columns:1fr;gap:3px}}

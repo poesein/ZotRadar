@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://zotradar/content/ui/dashboard/dashboard.css" type="text/css"?>
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        id="zotradar-dashboard-window" title="ZotRadar" orient="vertical"
+        width="1260" height="820" persist="width height screenX screenY">
+  <script src="dashboard.js"/>
+  <vbox flex="1" minwidth="720" minheight="520">
+  <html:div id="zr-scrollbox" class="zr-scrollbox">
+  <html:div id="zr-app" class="zr-app" data-style="multicolor">
+    <html:header class="zr-header">
+      <html:div class="zr-brand">
+        <html:img src="../../icons/zotradar-32.png" alt="ZotRadar"/>
+        <html:div><html:h1>ZotRadar</html:h1><html:small id="zr-subtitle"></html:small></html:div>
+      </html:div>
+      <html:div class="zr-header-actions">
+        <html:button id="zr-refresh" title="Refresh">↻</html:button>
+        <html:button id="zr-close" title="Close">×</html:button>
+      </html:div>
+    </html:header>
+    <html:nav id="zr-nav" class="zr-nav">
+      <html:button data-page="papers" class="active"></html:button>
+      <html:button data-page="subscriptions"></html:button>
+      <html:button data-page="scorecards"></html:button>
+      <html:button data-page="feedback"></html:button>
+      <html:button data-page="system"></html:button>
+    </html:nav>
+    <html:main class="zr-main">
+      <html:section id="zr-page-papers" class="zr-page active"></html:section>
+      <html:section id="zr-page-subscriptions" class="zr-page"></html:section>
+      <html:section id="zr-page-scorecards" class="zr-page"></html:section>
+      <html:section id="zr-page-feedback" class="zr-page"></html:section>
+      <html:section id="zr-page-system" class="zr-page"></html:section>
+    </html:main>
+    <html:div id="zr-toast" class="zr-toast" hidden="hidden"></html:div>
+  </html:div>
+  </html:div>
+  </vbox>
+</window>

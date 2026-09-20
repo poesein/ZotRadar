@@ -1,0 +1,46 @@
+{
+  "schema_version": "feedback-v1",
+  "enabled": true,
+  "learning_method": "manual",
+  "minimum_examples": 10,
+  "maturity": [
+    {
+      "min_examples": 300,
+      "max_adjustment": 0
+    },
+    {
+      "min_examples": 100,
+      "max_adjustment": 0
+    },
+    {
+      "min_examples": 30,
+      "max_adjustment": 0
+    },
+    {
+      "min_examples": 10,
+      "max_adjustment": 0
+    },
+    {
+      "min_examples": 0,
+      "max_adjustment": 0
+    }
+  ],
+  "sources": {
+    "explicit_user": {
+      "enabled": true,
+      "weight": 1.0
+    },
+    "deep_read": {
+      "enabled": false,
+      "weight": 0.6
+    },
+    "zotero_library": {
+      "enabled": false,
+      "weight": 0.15
+    }
+  },
+  "profile_rebuild": {
+    "after_new_feedback": 10,
+    "rebuild_on_startup": false
+  }
+}

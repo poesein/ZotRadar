@@ -1,0 +1,19 @@
+{
+  "addons": {
+    "zotradar@poesein": {
+      "updates": [
+        {
+          "version": "5.2.21",
+          "update_link": "https://raw.githubusercontent.com/poesein/ZotRadar/main/releases/5.2.21/ZotRadar-5.2.21-zotero10.xpi",
+          "update_hash": "sha256:c227b31ba2cfe3eb3d4b1a7f52d55d63faeb9857b151359ed584e384290ccc24",
+          "applications": {
+            "zotero": {
+              "strict_min_version": "10.0",
+              "strict_max_version": "10.0.*"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

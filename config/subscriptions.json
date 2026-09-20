@@ -1,0 +1,16 @@
+{
+  "subscriptions": [
+    {
+      "id": "protein_design",
+      "label": "Protein Design",
+      "enabled": true,
+      "default": true,
+      "match": { "all": true },
+      "feed_ids": [
+        "europe_pmc_protein_design_published",
+        "europe_pmc_protein_design_preprints"
+      ],
+      "scorecard": "protein_design"
+    }
+  ]
+}

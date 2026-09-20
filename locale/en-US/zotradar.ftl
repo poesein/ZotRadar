@@ -1,0 +1,15 @@
+zotradar-pane-header = ZotRadar
+    .label = ZotRadar
+    .tooltiptext = ZotRadar
+zotradar-open-dashboard = Open ZotRadar
+    .label = Open ZotRadar
+    .tooltiptext = Open ZotRadar
+zotradar-screen-selected = Screen with ZotRadar
+    .label = Screen with ZotRadar
+    .tooltiptext = Screen with ZotRadar
+zotradar-run-now = Run ZotRadar now
+    .label = Run ZotRadar now
+    .tooltiptext = Run ZotRadar now
+zotradar-settings = ZotRadar Settings
+    .label = ZotRadar Settings
+    .tooltiptext = ZotRadar Settings

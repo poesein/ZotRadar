@@ -1,0 +1,48 @@
+{
+  "schema_version": "generic-scoring-v1.2",
+  "relevance": {
+    "mapping": {
+      "DIRECT": {
+        "HIGH": 95,
+        "MEDIUM": 85,
+        "LOW": 75
+      },
+      "CONTEXTUAL": {
+        "HIGH": 70,
+        "MEDIUM": 60,
+        "LOW": 50
+      },
+      "TRANSFERABLE": {
+        "HIGH": 75,
+        "MEDIUM": 60,
+        "LOW": 45
+      },
+      "OUT_OF_SCOPE": 10,
+      "UNCERTAIN": null
+    }
+  },
+  "journal": {
+    "neutral_score": 50,
+    "preprint_score": 50,
+    "unknown_score": 50,
+    "weights": {
+      "cas_quality": 0.6,
+      "impact_factor": 0.4
+    }
+  },
+  "grades": {
+    "A": 80,
+    "B": 65,
+    "C": 45,
+    "D": 0
+  },
+  "priority": {
+    "weights": {
+      "relevance": 0.8,
+      "journal": 0.2
+    }
+  },
+  "versions": {
+    "scoring_policy": "generic-scoring-v1.2"
+  }
+}

@@ -1,0 +1,1 @@
+(function(ZR){'use strict';const m=new Map();function on(name,fn){if(!m.has(name))m.set(name,new Set());m.get(name).add(fn);return()=>off(name,fn);}function off(name,fn){m.get(name)?.delete(fn);}function emit(name,payload){for(const fn of m.get(name)||[]){try{fn(payload);}catch(e){Zotero.logError(e);}}}function clear(){m.clear();}ZR.Events={on,off,emit,clear};})(ZR);

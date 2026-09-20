@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="zotradar-token" content="__ZR_TOKEN__">
+<title>ZotRadar</title>
+<link rel="stylesheet" href="/zotradar/style.css">
+</head>
+<body>
+<div id="compatibilityNotice" class="compatibility-notice">Developer / compatibility interface. Open ZotRadar in Zotero for normal use.</div>
+<header class="topbar">
+  <div><h1>ZotRadar</h1><p id="appSubtitle">Zotero Native · Scoring · Personal Relevance Learning</p></div>
+  <div class="top-actions"><span id="healthBadge" class="badge muted">Connecting…</span><button id="runNow">Fetch &amp; score now</button></div>
+</header>
+<nav class="tabs">
+  <button id="tabBtnPapers" data-tab="papers" class="active">Papers</button>
+  <button id="tabBtnFeedback" data-tab="feedback">Feedback learning</button>
+  <button id="tabBtnScorecards" data-tab="scorecards">Scoring</button>
+  <button id="tabBtnSettings" data-tab="settings">Settings</button>
+</nav>
+<main>
+<section id="tab-papers" class="tab active">
+  <div class="toolbar">
+    <label><span id="subscriptionLabel">Subscription</span> <select id="subscriptionSelect"></select></label>
+    <input id="search" placeholder="Search title / abstract / authors">
+    <select id="gradeFilter"><option value="">All grades</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+    <select id="scopeFilter"><option value="">All scopes</option><option>DIRECT</option><option>CONTEXTUAL</option><option>TRANSFERABLE</option><option>OUT_OF_SCOPE</option><option>UNCERTAIN</option></select>
+    <select id="topicFilter"><option value="">All topics</option></select>
+    <label><input type="checkbox" id="correctedOnly"> <span id="correctedOnlyLabel">User-corrected only</span></label>
+    <span id="paperCount" class="muted"></span>
+  </div>
+  <div id="subscriptionInfo" class="muted" style="margin:-4px 0 12px"></div>
+  <div class="table-wrap"><table><thead><tr><th id="colGrade">Grade</th><th id="colPriority">Priority</th><th id="colPaper">Paper</th><th id="colScope">Scope</th><th id="colJournal">Journal</th><th id="colDate">Date</th><th></th></tr></thead><tbody id="paperRows"></tbody></table></div>
+</section>
+<section id="tab-feedback" class="tab"><div id="feedbackPanel"></div></section>
+<section id="tab-scorecards" class="tab">
+  <div class="split">
+    <div class="side-list">
+      <div class="side-actions"><button id="newScorecard">New</button></div>
+      <div id="scorecardList"></div>
+    </div>
+    <div class="editor">
+      <div class="editor-head"><div><h2 id="scorecardEditorTitle">Scoring</h2><div id="scorecardMeta" class="muted"></div></div></div>
+      <textarea id="scorecardEditor" spellcheck="false"></textarea>
+      <div class="editor-actions">
+        <button id="saveScorecard">Save / Override</button>
+        <button id="copyScorecard" class="secondary">Copy</button>
+        <button id="deleteScorecard" class="danger">Delete / Disable</button>
+        <button id="restoreScorecard" class="secondary">Restore bundled</button>
+      </div>
+      <p id="scorecardHint" class="muted">Bundled scoring definitions can be edited as user overrides. Deleting a bundled definition disables it and it can be restored later. Custom definitions are deleted directly.</p>
+    </div>
+  </div>
+</section>
+<section id="tab-settings" class="tab"><div id="settingsPanel" class="cards"></div></section>
+</main>
+<div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="close">×</button><div id="modalBody"></div></div></div>
+<div id="toast" class="toast hidden"></div>
+<script src="/zotradar/app.js"></script>
+</body>
+</html>

@@ -54,7 +54,7 @@ The System page can explicitly inspect and import a legacy database. The source 
 `config/` holds the example subscription, feeds, scorecard, and generic scoring policy. `content/scripts/` implements fetching, scoring, storage, and migration. `content/services/` is shared by the native panel and compatibility API. `content/ui/dashboard/` is the primary native workspace; `web/` is a developer/compatibility page. `updates.json` supplies Zotero's update manifest.
 
 ```powershell
-node --test tests/public-release.test.mjs tests/scoring.test.mjs
+node --test tests/*.test.mjs
 ```
 
 Offline checks cover factory references, generic scoring, file scope, and common sensitive-string patterns. See the [release audit](RELEASE_AUDIT.md). **Version 5.2.21 has not yet passed a clean-profile Zotero 10 installation, live feed, and live model-scoring acceptance test.** Offline tests do not replace that verification. Bug reports should include Zotero/ZotRadar versions, reproduction steps, and redacted errors.

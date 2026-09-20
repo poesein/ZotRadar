@@ -261,6 +261,21 @@
     if(typeof value==='string')STRINGS['en-US'][key]=value.replace(/Scorecards?/g,'Scoring');
   }
 
+  Object.assign(STRINGS['en-US'],{
+    'native.profileMaturity':'Feedback overview',
+    'native.profileVersions':'Feedback snapshots',
+    'native.rollback':'Select snapshot',
+    'native.profileManualOnly':'Profiles are snapshots of explicit feedback; automatic similarity-based score adjustments are off.',
+    'native.rollbackConfirm':'Select profile snapshot {version}? This will not undo or change any explicit paper corrections.'
+  });
+  Object.assign(STRINGS['zh-CN'],{
+    'native.profileMaturity':'反馈概况',
+    'native.profileVersions':'反馈快照',
+    'native.rollback':'切换快照',
+    'native.profileManualOnly':'Profile 仅记录人工反馈快照；自动相似度加分目前关闭。',
+    'native.rollbackConfirm':'切换到 Profile 快照 {version}？这不会撤销或改变任何论文的人工纠正。'
+  });
+
   function detectedLocale() {
     let raw = '';
     try { raw = (typeof Services !== 'undefined' && Services.locale && Services.locale.appLocaleAsBCP47) || ''; } catch (_) {}

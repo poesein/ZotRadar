@@ -21,6 +21,23 @@
 
   function cacheKey(paper,card,model){return ZR.Utils.hashString([paper.title,paper.abstract,ZR.Scorecards.hash(card.id),ZR.Ollama.PROMPT_VERSION,model].join('|'));}
   function staleModelContract(latest,card){return latest.prompt_contract_version!==ZR.Ollama.PROMPT_VERSION||latest.scorecard_hash!==ZR.Scorecards.hash(card.id);}
+  function mergeFetchedPaper(stored, fetched){
+    if(!stored)return fetched;
+    const abstract=String(fetched.abstract||'').length>String(stored.abstract||'').length?fetched.abstract:stored.abstract;
+    const records=[...(stored.source_records||[]),...(fetched.source_records||[])];
+    const seen=new Set();
+    return {...stored,...fetched,abstract,
+      authors:(fetched.authors||[]).length?fetched.authors:stored.authors,
+      doi:fetched.doi||stored.doi,pmid:fetched.pmid||stored.pmid,pmcid:fetched.pmcid||stored.pmcid,
+      published:fetched.published||stored.published,journal:fetched.journal||stored.journal,url:fetched.url||stored.url,
+      zotero_library_id:stored.zotero_library_id,zotero_key:stored.zotero_key,
+      source_records:records.filter(r=>{const key=[r.id||'',r.type||'',r.url||''].join('|');if(seen.has(key))return false;seen.add(key);return true})};
+  }
+  function needsFeedScreening(latest,sub,card,paperChanged,model){
+    return !latest||latest.scorecard_id!==sub.scorecard||staleModelContract(latest,card)||
+      latest.scoring_policy_version!==ZR.Scoring.POLICY||latest.model==='heuristic-v5-fallback'||
+      latest.model!==model||paperChanged;
+  }
   function applyOverride(j,fb){if(!fb||!fb.corrected_scope)return{judgement:j,overridden:false};const out={...j,scope:fb.corrected_scope,strength:fb.corrected_strength||null,transferable_topic:fb.corrected_scope==='TRANSFERABLE'?(fb.corrected_transferable_topic||j.transferable_topic||null):null,reason:fb.note||'User-corrected relevance judgement.'};if(['OUT_OF_SCOPE','UNCERTAIN'].includes(out.scope))out.strength=null;return{judgement:out,overridden:true};}
   function isCorrectionOrRetraction(paper){
     const title=String(paper.title||'').trim();
@@ -62,10 +79,10 @@
       try{const fr=await ZR.Feedback.adjustment({paperID,title:paper.title,abstract:paper.abstract,scorecardID:card.id,judgement});feedbackAdjustment=fr.adjustment;profileVersion=fr.version;feedbackDetails=fr.details;}
       catch(e){feedbackDetails={reason:'feedback unavailable',error:String(e)};}
     }
-    const jinfo=await ZR.Journal.score(paper.journal||''),journalScore=Number(jinfo.score??50),scores=ZR.Scoring.score(judgement,{feedbackAdjustment,baselineJudgement:ov.overridden?modelJudgement:null,journalScore,isPreprint:jinfo.is_preprint===true||jinfo.source==='preprint'||ZR.Journal.isPreprint(paper.journal||''),cfg:ZR.Scoring.forCard(card)});
+    const jinfo=await ZR.Journal.score(paper.journal||''),journalScore=Number(jinfo.score??50),scores=ZR.Scoring.score(judgement,{feedbackAdjustment,baselineJudgement:ov.overridden?modelJudgement:null,journalScore,isPreprint:jinfo.is_preprint===true||jinfo.source==='preprint'||!!ZR.Journal.preprintSource(paper),cfg:ZR.Scoring.forCard(card)});
     const result={paper_id:paperID,subscription_id:subscription.id,scorecard_id:card.id,scorecard_version:card.version,scorecard_hash:ZR.Scorecards.hash(card.id),judgement,model_judgement:modelJudgement,rule_evidence:ev,scores,model,prompt_contract_version:ZR.Ollama.PROMPT_VERSION,scoring_policy_version:ZR.Scoring.POLICY,preference_profile_version:profileVersion,embedding_model_version:null,raw_model_json:raw,feedback_details:feedbackDetails,user_overridden:ov.overridden,created_at:ZR.Utils.nowISO()};
     const sid=await ZR.DB.saveScreening(runID,result);
-    ZR.Services?.Papers?.queueTitleTranslations?.([{paper_id:paperID,title:paper.title}],{priority:true});
+    // Translation is queued for visible Papers rows, not during screening.
     if(paper.zotero_library_id!=null&&paper.zotero_key)ZR.DB.updateItemCache(paper.zotero_library_id,paper.zotero_key,{paper_id:paperID,screening_id:sid,reading_priority:scores.reading_priority,grade:scores.grade,scope:judgement.scope,strength:judgement.strength,topics:judgement.topics||[],scorecard_id:card.id});
     return result;
   }
@@ -85,18 +102,38 @@
       const fr=await ZR.Feeds.fetchAll(allFeedIDs);
       stats.fetched=fr.fetched;stats.errors+=fr.errors;
       for(let p of fr.papers){
+        let targets=[];
         try{
           if(isCorrectionOrRetraction(p)){stats.filtered_correction++;continue}
           p=await ZR.Feeds.completeFromEPMC(p);
           if(isCorrectionOrRetraction(p)){stats.filtered_correction++;continue}
-          if(await ZR.DB.findExistingPaper(p)){stats.filtered_existing++;continue}
-          if(await isInZotero(p)){stats.filtered_zotero++;continue}
+          const existingID=await ZR.DB.findExistingPaper(p);
+          const stored=existingID?await ZR.DB.getPaper(existingID):null;
+          const fetchedSources=p.source_records;
+          p=mergeFetchedPaper(stored,p);
+          const routed={...p,source_records:fetchedSources};
+          targets=selected?(ZR.Feeds.matchesSubscription(routed,selected)?[selected]:[]):ZR.Feeds.subscriptionsFor(routed);
+          if(existingID){
+            const paperChanged=!stored||stored.title!==p.title||stored.abstract!==p.abstract;
+            const model=String(ZR.Utils.getPref('screeningModel','qwen3:8b'));
+            const pending=[];
+            for(const sub of targets){
+              const card=ZR.Scorecards.get(sub.scorecard);
+              const latest=await ZR.DB.latestPaperSubscriptionScreening(existingID,sub.id);
+              if(needsFeedScreening(latest,sub,card,paperChanged,model))pending.push(sub);
+            }
+            targets=pending;
+            if(!targets.length){stats.filtered_existing++;continue}
+          }else if(await isInZotero(p)){stats.filtered_zotero++;continue}
         }catch(e){stats.errors++;Zotero.logError(e);continue}
         stats.papers++;
-        const targets=selected?(ZR.Feeds.matchesSubscription(p,selected)?[selected]:[]):ZR.Feeds.subscriptionsFor(p);
         for(const sub of targets){try{await screenPaper(p,sub,{runID});stats.screenings++}catch(e){stats.errors++;Zotero.logError(e)}}
       }
       await ZR.DB.finishRun(runID,stats);
+      if(stats.screenings){
+        try{await ZR.DB.loadItemCache();ZR.UI?.refreshColumns?.();}catch(e){Zotero.logError(e)}
+        ZR.Events?.emit('papers:changed',{runID,subscriptionID:stats.subscription_id});
+      }
       ZR.Utils.setPref('lastDailyRun',ZR.Utils.nowISO());
       return{ok:true,run_id:runID,...stats,feed_ids:fr.feed_ids||[]};
     }catch(e){
@@ -123,7 +160,7 @@
         catch(e){feedbackDetails={reason:'feedback unavailable',error:String(e)}}
       }
       const jinfo=await ZR.Journal.score(p.journal||'');
-      const scores=ZR.Scoring.score(j,{feedbackAdjustment,baselineJudgement:ov.overridden?modelJ:null,journalScore:jinfo?.score??latest.journal_score,isPreprint:jinfo?.is_preprint===true||jinfo?.source==='preprint'||ZR.Journal.isPreprint(p.journal||''),cfg:ZR.Scoring.forCard(card)});
+      const scores=ZR.Scoring.score(j,{feedbackAdjustment,baselineJudgement:ov.overridden?modelJ:null,journalScore:jinfo?.score??latest.journal_score,isPreprint:jinfo?.is_preprint===true||jinfo?.source==='preprint'||!!ZR.Journal.preprintSource(p),cfg:ZR.Scoring.forCard(card)});
       const result={paper_id:paperID,subscription_id:latest.subscription_id,scorecard_id:scorecardID,scorecard_version:card.version,scorecard_hash:ZR.Scorecards.hash(card.id),judgement:j,model_judgement:modelJ,rule_evidence:latest.rule_evidence||ZR.Utils.safeJSON(latest.rule_evidence_json,{}),scores,model:latest.model,prompt_contract_version:latest.prompt_contract_version,scoring_policy_version:ZR.Scoring.POLICY,preference_profile_version:profileVersion,embedding_model_version:null,raw_model_json:latest.raw_model_json,feedback_details:feedbackDetails,user_overridden:ov.overridden,created_at:ZR.Utils.nowISO()};
       await ZR.DB.saveScreening(runID,result);results.push(result);
     }

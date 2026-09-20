@@ -286,9 +286,10 @@ ${paper.abstract || '[ABSTRACT NOT AVAILABLE]'}`;
         strength = 'LOW';
         errors.push('Title-only quotation cannot support HIGH evidence depth');
       }
-      if (strength === 'HIGH' && (evidenceType === 'DESCRIPTIVE' || evidenceType === 'CLINICAL')) {
+      const highDepthCapTypes=Array.isArray(policy.high_depth_cap_types)?policy.high_depth_cap_types:['DESCRIPTIVE','CLINICAL'];
+      if (strength === 'HIGH' && highDepthCapTypes.includes(evidenceType)) {
         strength = 'MEDIUM';
-        errors.push('Descriptive or clinical evidence alone does not establish HIGH research depth');
+        errors.push('Scorecard evidence-type policy caps HIGH research depth for '+evidenceType);
       }
       if (strength === 'HIGH' && evidenceType === 'METHOD' &&
         descriptiveMainQuestion && !methodSupported) {

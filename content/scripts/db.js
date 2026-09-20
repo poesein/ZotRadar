@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS screenings (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS ix_screenings_latest ON screenings(paper_id,scorecard_id,id DESC);
+CREATE INDEX IF NOT EXISTS ix_screenings_paper_subscription ON screenings(paper_id,subscription_id,id DESC);
 CREATE INDEX IF NOT EXISTS ix_screenings_rank ON screenings(scorecard_id,reading_priority DESC);
 
 CREATE TABLE IF NOT EXISTS screen_cache (
@@ -257,6 +258,9 @@ CREATE TABLE IF NOT EXISTS runs (
   async function latestScreening(paperID, scorecardID) {
     return decodeScreening(await row('SELECT * FROM screenings WHERE paper_id=? AND scorecard_id=? ORDER BY id DESC LIMIT 1',[paperID,scorecardID]));
   }
+  async function latestPaperSubscriptionScreening(paperID, subscriptionID) {
+    return decodeScreening(await row('SELECT * FROM screenings WHERE paper_id=? AND subscription_id=? ORDER BY id DESC LIMIT 1',[paperID,subscriptionID]));
+  }
   async function latestPaperScorecardScreenings(paperID,scorecardID) {
     const rows=await all('SELECT * FROM screenings WHERE id IN (SELECT MAX(id) FROM screenings WHERE paper_id=? AND scorecard_id=? GROUP BY subscription_id) ORDER BY id DESC',[paperID,scorecardID]);
     return rows.map(decodeScreening);
@@ -366,5 +370,5 @@ CREATE TABLE IF NOT EXISTS runs (
   }
   function updateItemCache(libraryID,key,screen){if(libraryID!=null&&key)ZR.State.itemCache.set(`${libraryID}:${key}`,screen);}
 
-  ZR.DB = { conn:null, init,close,all,row,value,exec,pickRow,pickRows,getMeta,setMeta,setReadStates,lastID,upsertPaper,getPaper,findExistingPaper,paperByZotero,saveScreening,latestScreening,latestPaperScorecardScreenings,latestScreenings,latestSubscriptionScreenings,saveCache,getCache,latestFeedback,addFeedback,revokeFeedback,activeFeedback,feedbackClass,markProfilePending,activeProfileVersion,buildProfile,rollbackProfile,profileMembers,profileStatus,getEmbedding,saveEmbedding,getJournalMetric,saveJournalMetric,updateFeedState,startRun,finishRun,loadItemCache,updateItemCache,titleNorm };
+  ZR.DB = { conn:null, init,close,all,row,value,exec,pickRow,pickRows,getMeta,setMeta,setReadStates,lastID,upsertPaper,getPaper,findExistingPaper,paperByZotero,saveScreening,latestScreening,latestPaperSubscriptionScreening,latestPaperScorecardScreenings,latestScreenings,latestSubscriptionScreenings,saveCache,getCache,latestFeedback,addFeedback,revokeFeedback,activeFeedback,feedbackClass,markProfilePending,activeProfileVersion,buildProfile,rollbackProfile,profileMembers,profileStatus,getEmbedding,saveEmbedding,getJournalMetric,saveJournalMetric,updateFeedState,startRun,finishRun,loadItemCache,updateItemCache,titleNorm };
 })(ZR);

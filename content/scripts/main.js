@@ -72,10 +72,8 @@
     stage('core:scheduler');
     if (dbReady) {
       try { ZR.Scheduler.start(); } catch (e) { componentError('scheduler', e); }
-      // Backfill scored papers from older releases. This only queues work;
-      // translations are cached and run after startup with the screening LLM.
-      try { await ZR.Services.Papers.backfillTitleTranslations(); }
-      catch (e) { componentError('title-translations', e); }
+      // The Papers view queues visible titles on demand. Do not enumerate the
+      // full library or start translation model work during Zotero startup.
     }
 
     if (Object.keys(ZR.componentErrors).length) {

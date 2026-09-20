@@ -55,7 +55,7 @@ ZotRadar 是一款适用于 Zotero 10 的本地文献雷达插件。它从订阅
 `config/` 包含示例订阅、Feed、评估卡和通用评分配置；`content/scripts/` 实现抓取、评分、数据库和迁移；`content/services/` 为原生面板与兼容 API 提供共用服务；`content/ui/dashboard/` 是正式原生工作区；`web/` 为开发/兼容页面。`updates.json` 用于 Zotero 更新检查。
 
 ```powershell
-node --test tests/public-release.test.mjs tests/scoring.test.mjs
+node --test tests/*.test.mjs
 ```
 
 离线检查覆盖出厂配置引用、通用评分、文件范围与常见敏感字符串。发布文件核查见 [RELEASE_AUDIT.md](RELEASE_AUDIT.md)。**5.2.21 尚未完成全新 Zotero 10 资料中的实机安装、抓取和评分验收**；离线测试不替代真实运行测试。问题反馈请提供 Zotero/ZotRadar 版本、复现步骤和脱敏错误。

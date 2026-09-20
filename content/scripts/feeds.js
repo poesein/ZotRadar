@@ -7,8 +7,31 @@
   async function fetchEuropePMC(feed,maxItems){const pageSize=Math.min(1000,Number(maxItems||feed.max_items||100)),url=String(feed.url||'https://www.ebi.ac.uk/europepmc/webservices/rest/search')+'?query='+encodeURIComponent(feed.query||'')+'&format=json&resultType=core&pageSize='+pageSize;const p=JSON.parse(await getText(url,30000)),rows=((p.resultList||{}).result)||[];return rows.slice(0,pageSize).map(x=>epmcPaper(x,feed));}
   async function fetchFeed(feed){const max=Math.min(Number(feed.max_items||ZR.Utils.getPref('maxFeedItems',100)),Number(ZR.Utils.getPref('maxFeedItems',100)));if(feed.type==='europe_pmc_api')return fetchEuropePMC(feed,max);const text=await getText(feed.url,30000);return parseRSS(text,feed,max);}
   function normalizedTitle(t){return ZR.Utils.normalizeText(t).replace(/[^a-z0-9\u4e00-\u9fff ]/g,'').replace(/\s+/g,' ').trim();}
-  function dedupe(papers){const map=new Map();for(const p of papers){const key=p.doi?'doi:'+ZR.Utils.normalizeDOI(p.doi):p.pmid?'pmid:'+p.pmid:'title:'+normalizedTitle(p.title);if(!map.has(key)){map.set(key,{...p});continue;}const x=map.get(key);if(!x.abstract&&p.abstract)x.abstract=p.abstract;if(!x.journal&&p.journal)x.journal=p.journal;if(!x.doi&&p.doi)x.doi=p.doi;if(!x.pmid&&p.pmid)x.pmid=p.pmid;x.source_records=[...(x.source_records||[]),...(p.source_records||[])];}return[...map.values()];}
-  async function completeFromEPMC(paper){if(paper.abstract)return paper;let query='',kind='title';if(paper.doi){query=`DOI:\"${paper.doi}\"`;kind='doi';}else if(paper.pmid){query=`EXT_ID:\"${paper.pmid}\"`;kind='pmid';}else if(paper.pmcid){query=`PMCID:\"${paper.pmcid}\"`;kind='pmcid';}else query=`TITLE:\"${String(paper.title||'').replace(/"/g,'')}\"`;const url='https://www.ebi.ac.uk/europepmc/webservices/rest/search?query='+encodeURIComponent(query)+'&format=json&resultType=core&pageSize=1';try{const p=JSON.parse(await getText(url,30000)),item=(((p.resultList||{}).result)||[])[0];if(!item)return paper;if(kind==='doi'&&ZR.Utils.normalizeDOI(item.doi)!==ZR.Utils.normalizeDOI(paper.doi))return paper;if(kind==='pmid'&&String(item.pmid||'')!==String(paper.pmid||''))return paper;if(kind==='pmcid'&&String(item.pmcid||'').toLowerCase()!==String(paper.pmcid||'').toLowerCase())return paper;const updated=epmcPaper(item,{type:'europe_pmc_completion',name:'Europe PMC completion',url});return{...paper,abstract:updated.abstract||paper.abstract,doi:updated.doi||paper.doi,pmid:updated.pmid||paper.pmid,pmcid:updated.pmcid||paper.pmcid,journal:updated.journal||paper.journal,citation_count:updated.citation_count||paper.citation_count};}catch(e){ZR.Utils.log('EPMC completion failed',e);return paper;}}
+  function dedupe(papers){const map=new Map();for(const p of papers){const key=p.doi?'doi:'+ZR.Utils.normalizeDOI(p.doi):p.pmid?'pmid:'+p.pmid:'title:'+normalizedTitle(p.title);if(!map.has(key)){map.set(key,{...p});continue;}const x=map.get(key);if(String(p.abstract||'').length>String(x.abstract||'').length)x.abstract=p.abstract;if(!x.journal&&p.journal)x.journal=p.journal;if(!x.doi&&p.doi)x.doi=p.doi;if(!x.pmid&&p.pmid)x.pmid=p.pmid;x.source_records=[...(x.source_records||[]),...(p.source_records||[])];}return[...map.values()];}
+  async function completeFromEPMC(paper){
+    const original=String(paper.abstract||'').trim(),hasID=!!(paper.doi||paper.pmid||paper.pmcid);
+    // RSS descriptions can be short teasers. Only probe those when an exact
+    // identifier can verify the returned record; never replace a full abstract.
+    if(original.length>=180||original.length&& !hasID)return paper;
+    let query='',kind='title';
+    if(paper.doi){query=`DOI:\"${paper.doi}\"`;kind='doi';}
+    else if(paper.pmid){query=`EXT_ID:\"${paper.pmid}\"`;kind='pmid';}
+    else if(paper.pmcid){query=`PMCID:\"${paper.pmcid}\"`;kind='pmcid';}
+    else query=`TITLE:\"${String(paper.title||'').replace(/"/g,'')}\"`;
+    const url='https://www.ebi.ac.uk/europepmc/webservices/rest/search?query='+encodeURIComponent(query)+'&format=json&resultType=core&pageSize=1';
+    try{
+      const response=JSON.parse(await getText(url,30000)),item=(((response.resultList||{}).result)||[])[0];
+      if(!item)return paper;
+      if(kind==='doi'&&ZR.Utils.normalizeDOI(item.doi)!==ZR.Utils.normalizeDOI(paper.doi))return paper;
+      if(kind==='pmid'&&String(item.pmid||'')!==String(paper.pmid||''))return paper;
+      if(kind==='pmcid'&&String(item.pmcid||'').toLowerCase()!==String(paper.pmcid||'').toLowerCase())return paper;
+      if(kind==='title'&&normalizedTitle(item.title)!==normalizedTitle(paper.title))return paper;
+      const updated=epmcPaper(item,{type:'europe_pmc_completion',name:'Europe PMC completion',url});
+      return{...paper,abstract:String(updated.abstract||'').length>original.length?updated.abstract:paper.abstract,
+        doi:updated.doi||paper.doi,pmid:updated.pmid||paper.pmid,pmcid:updated.pmcid||paper.pmcid,
+        journal:updated.journal||paper.journal,citation_count:updated.citation_count||paper.citation_count};
+    }catch(e){ZR.Utils.log('EPMC completion failed',e);return paper;}
+  }
   function matchesSubscription(paper,sub){const m=sub.match||{};if(m.all)return true;const blob=ZR.Utils.normalizeText(`${paper.title}\n${paper.abstract}`),any=m.any_terms||[],all=m.all_terms||[];if(any.length&&!any.some(t=>ZR.Utils.containsTerm(blob,t)))return false;if(all.length&&!all.every(t=>ZR.Utils.containsTerm(blob,t)))return false;return !!(any.length||all.length);}
   function subscriptionsFor(paper){const rows=ZR.ScorecardManager.activeSubscriptions(),sourceIDs=new Set((paper.source_records||[]).map(r=>String(r.id||'')).filter(Boolean));const eligible=rows.filter(x=>{const ids=Array.isArray(x.feed_ids)?x.feed_ids.map(String):[];return !ids.length||ids.some(id=>sourceIDs.has(id));}),hits=eligible.filter(x=>matchesSubscription(paper,x));if(hits.length)return hits;const d=eligible.find(x=>x.default);return d?[d]:[];}
   async function fetchAll(feedIDs=null){const wanted=feedIDs?new Set((feedIDs||[]).map(String)):null;const feeds=(ZR.Config.feeds.feeds||[]).filter(f=>f.enabled!==false&&f.url&&!String(f.url).startsWith('TODO_')&&(!wanted||wanted.has(String(f.id)))),out=[];let errors=0;for(const f of feeds){try{const rows=await fetchFeed(f);out.push(...rows);await ZR.DB.updateFeedState(f.id,rows.length,null);}catch(e){errors++;await ZR.DB.updateFeedState(f.id,0,String(e));Zotero.logError(e);}}return{papers:dedupe(out),fetched:out.length,errors,feed_ids:feeds.map(f=>f.id)};}

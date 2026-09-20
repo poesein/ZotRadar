@@ -62,6 +62,9 @@
     "allow_contextual_without_direct_anchor": true,
     "allow_transferable_without_domain_anchor": true
   },
+  "evidence_policy": {
+    "high_depth_cap_types": ["DESCRIPTIVE", "CLINICAL"]
+  },
   "semantic_profile": {
     "positive_descriptions": [
       "Typical highly relevant papers in this domain."

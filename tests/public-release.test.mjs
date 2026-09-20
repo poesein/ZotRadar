@@ -32,7 +32,7 @@ const allowedTop = new Set([
   'README.md', 'README_EN.md', 'RELEASE_AUDIT.md', 'updates.json', 'tests', 'releases'
 ]);
 for (const name of fs.readdirSync(root)) assert.ok(name === '.git' || allowedTop.has(name), `Unexpected public root entry: ${name}`);
-assert.deepEqual(fs.readdirSync(path.join(root, 'tests')).sort(), ['public-release.test.mjs', 'scoring.test.mjs']);
+assert.deepEqual(fs.readdirSync(path.join(root, 'tests')).sort(), ['pipeline-regressions.test.mjs', 'public-release.test.mjs', 'scoring.test.mjs']);
 assert.deepEqual(fs.readdirSync(path.join(root, 'config', 'scorecards')).sort(), ['_template.json', 'protein_design.json']);
 
 const sensitive = [

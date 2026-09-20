@@ -66,6 +66,11 @@
       stringArray(policy.contextual_require_any || [], 'evidence_policy.contextual_require_any');
       stringArray(policy.clinical_title_terms || [], 'evidence_policy.clinical_title_terms');
       stringArray(policy.descriptive_title_terms || [], 'evidence_policy.descriptive_title_terms');
+      if(policy.high_depth_cap_types != null){
+        stringArray(policy.high_depth_cap_types, 'evidence_policy.high_depth_cap_types');
+        const allowed=new Set(['MECHANISM','FUNCTION','STRUCTURE','SPATIAL_SIGNALING','VARIANT','INTERVENTION','METHOD','SYNTHESIS','DESCRIPTIVE','CLINICAL']);
+        assert(policy.high_depth_cap_types.every(type=>allowed.has(type)), 'evidence_policy.high_depth_cap_types contains an unknown evidence type');
+      }
       if (policy.direct_discriminative_anchors != null) {
         assert(Array.isArray(policy.direct_discriminative_anchors),
           'evidence_policy.direct_discriminative_anchors must be an array');

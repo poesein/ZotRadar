@@ -62,4 +62,6 @@ node --test tests/*.test.mjs
 
 Offline checks cover factory references, generic scoring, RSS/Atom/JSON Feed paths, file scope, and common sensitive-string patterns. See the [release audit](RELEASE_AUDIT.md). **Version 5.3.1 has not yet passed a clean-profile Zotero 10 installation, live feed, and live model-scoring acceptance test.** Offline tests do not replace that verification. Bug reports should include Zotero/ZotRadar versions, reproduction steps, and redacted errors.
 
-No open-source license is included at present. Public source visibility alone does not grant modification or redistribution rights.
+## License
+
+ZotRadar is licensed under the [MIT License](LICENSE).

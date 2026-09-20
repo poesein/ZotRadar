@@ -63,4 +63,6 @@ node --test tests/*.test.mjs
 
 离线检查覆盖出厂配置引用、通用评分、RSS/Atom/JSON Feed 解析路径、文件范围与常见敏感字符串。发布文件核查见 [RELEASE_AUDIT.md](RELEASE_AUDIT.md)。**5.3.1 尚未完成全新 Zotero 10 资料中的实机安装、抓取和评分验收**；离线测试不替代真实运行测试。问题反馈请提供 Zotero/ZotRadar 版本、复现步骤和脱敏错误。
 
-本仓库目前未附开源许可证；公开可查看源码不自动授予修改或再分发许可。
+## 许可证
+
+本项目采用 [MIT License](LICENSE) 开源。

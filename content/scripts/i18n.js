@@ -275,6 +275,30 @@
     'native.profileManualOnly':'Profile 仅记录人工反馈快照；自动相似度加分目前关闭。',
     'native.rollbackConfirm':'切换到 Profile 快照 {version}？这不会撤销或改变任何论文的人工纠正。'
   });
+  Object.assign(STRINGS['en-US'],{
+    'native.feedTypeRSS':'RSS / Atom',
+    'native.feedTypeLink':'Feed link (auto-detect RSS / Atom / JSON Feed)',
+    'native.feedTypeJSON':'JSON Feed',
+    'native.feedTypeEuropePMC':'Europe PMC API',
+    'native.feedURLHintRSS':'Enter a direct RSS or Atom feed URL, such as a PubMed RSS URL.',
+    'native.feedURLHintLink':'Enter a direct feed URL. HTML web pages are not supported.',
+    'native.feedURLHintJSON':'Enter a direct JSON Feed URL.',
+    'native.feedURLHintEuropePMC':'Europe PMC search API endpoint; the query is appended automatically.',
+    'native.feedQueryHint':'Required only for Europe PMC API.',
+    'native.feedErrorDetails':'Feed {id}: {message}'
+  });
+  Object.assign(STRINGS['zh-CN'],{
+    'native.feedTypeRSS':'RSS / Atom',
+    'native.feedTypeLink':'订阅链接（自动识别 RSS / Atom / JSON Feed）',
+    'native.feedTypeJSON':'JSON Feed',
+    'native.feedTypeEuropePMC':'Europe PMC API',
+    'native.feedURLHintRSS':'填写直达 RSS 或 Atom 的 URL，例如 PubMed RSS 链接。',
+    'native.feedURLHintLink':'填写直达订阅源的 URL；普通 HTML 网页暂不支持。',
+    'native.feedURLHintJSON':'填写直达 JSON Feed 的 URL。',
+    'native.feedURLHintEuropePMC':'Europe PMC 检索 API 地址；程序会自动附加查询参数。',
+    'native.feedQueryHint':'仅 Europe PMC API 必填。',
+    'native.feedErrorDetails':'订阅源 {id}：{message}'
+  });
 
   function detectedLocale() {
     let raw = '';

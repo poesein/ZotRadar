@@ -2,7 +2,9 @@
 
 ZotRadar 是一款适用于 Zotero 10 的本地文献雷达插件。它从订阅源获取新论文，依据可编辑的「评估卡」判断论文与研究方向的关系，给出阅读优先分，并在 Zotero 原生窗口中集中展示、检索与反馈。[English](README_EN.md)
 
-当前版本：**5.2.21**。安装包：[下载 XPI](releases/5.2.21/ZotRadar-5.2.21-zotero10.xpi) · [SHA-256](releases/5.2.21/SHA256SUMS.txt) · [源码 ZIP](releases/5.2.21/ZotRadar-5.2.21-source.zip)
+当前版本：**5.3.1**。安装包：[下载 XPI](releases/5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [SHA-256](releases/5.3.1/SHA256SUMS.txt) · [源码 ZIP](releases/5.3.1/ZotRadar-5.3.1-source.zip)
+
+每次发布都会递增版本号；例如 5.2.21 之后，本次为 5.3.1，后续修补版将从 5.3.2 开始。
 
 ## 主要功能
 
@@ -35,6 +37,7 @@ ZotRadar 是一款适用于 Zotero 10 的本地文献雷达插件。它从订阅
 <img width="1448" height="1086" alt="image" src="https://github.com/user-attachments/assets/388731eb-0c52-4acd-9e25-2a0f9588b142" />
 
 1. 在「订阅」中选择或新建研究方向，为它绑定 Feed 和评估卡。
+   新建 Feed 时选「RSS / Atom」并填写直达订阅 URL（包括 PubMed RSS）；「订阅链接」可自动识别 RSS、Atom、JSON Feed，也可对 JSON Feed 直接选专用类型；普通 HTML 网页不能作为 Feed；「Europe PMC API」需填写 API 地址及查询式。保存后先点击 Feed 的「测试」，确认抓取数及错误详情，再运行整个方向。
 2. 在「评分」中检查领域边界：DIRECT、CONTEXTUAL、TRANSFERABLE、OUT_OF_SCOPE；必要时编辑主题、别名和排除项。
 3. 点击「立即抓取与评分」。新论文会先去重，再交给已配置的模型分析；已存在的 Zotero 普通文献不会被重复导入。
 4. 在「文献」中按等级、范围、已读或导入状态筛选，并按优先分、日期或影响因子排序。展开论文可阅读摘要、DOI、证据与评分分解。
@@ -58,6 +61,6 @@ ZotRadar 是一款适用于 Zotero 10 的本地文献雷达插件。它从订阅
 node --test tests/*.test.mjs
 ```
 
-离线检查覆盖出厂配置引用、通用评分、文件范围与常见敏感字符串。发布文件核查见 [RELEASE_AUDIT.md](RELEASE_AUDIT.md)。**5.2.21 尚未完成全新 Zotero 10 资料中的实机安装、抓取和评分验收**；离线测试不替代真实运行测试。问题反馈请提供 Zotero/ZotRadar 版本、复现步骤和脱敏错误。
+离线检查覆盖出厂配置引用、通用评分、RSS/Atom/JSON Feed 解析路径、文件范围与常见敏感字符串。发布文件核查见 [RELEASE_AUDIT.md](RELEASE_AUDIT.md)。**5.3.1 尚未完成全新 Zotero 10 资料中的实机安装、抓取和评分验收**；离线测试不替代真实运行测试。问题反馈请提供 Zotero/ZotRadar 版本、复现步骤和脱敏错误。
 
 本仓库目前未附开源许可证；公开可查看源码不自动授予修改或再分发许可。

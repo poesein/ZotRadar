@@ -76,13 +76,17 @@
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   }
   function stripMarkup(value) {
-    const s = String(value || '');
-    try {
-      const Parser = Services.appShell.hiddenDOMWindow.DOMParser;
-      const doc = new Parser().parseFromString(s, 'text/html');
-      return (doc.body && doc.body.textContent || s).replace(/\s+/g, ' ').trim();
-    }
-    catch (_) { return s.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); }
+    const entities = { amp:'&', lt:'<', gt:'>', quot:'"', apos:"'", nbsp:' ', ndash:'–', mdash:'—', hellip:'…' };
+    return String(value || '')
+      .replace(/<\s*br\s*\/?\s*>/gi, ' ')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code) => {
+        if (code[0] !== '#') return entities[code.toLowerCase()] ?? whole;
+        const number = code[1].toLowerCase() === 'x' ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+        return number > 0 && number <= 0x10ffff && !(number >= 0xd800 && number <= 0xdfff)
+          ? String.fromCodePoint(number) : whole;
+      })
+      .replace(/\s+/g, ' ').trim();
   }
   function escapeHTML(s) {
     return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));

@@ -10,7 +10,7 @@ const subscriptions = json('config/subscriptions.json').subscriptions;
 const feeds = json('config/feeds.json').feeds;
 const scorecard = json('config/scorecards/protein_design.json');
 
-assert.equal(manifest.version, '5.2.21');
+assert.equal(manifest.version, '5.3.1');
 assert.equal(manifest.applications.zotero.id, 'zotradar@poesein');
 assert.equal(subscriptions.length, 1);
 assert.equal(subscriptions[0].id, 'protein_design');
@@ -32,7 +32,7 @@ const allowedTop = new Set([
   'README.md', 'README_EN.md', 'RELEASE_AUDIT.md', 'updates.json', 'tests', 'releases'
 ]);
 for (const name of fs.readdirSync(root)) assert.ok(name === '.git' || allowedTop.has(name), `Unexpected public root entry: ${name}`);
-assert.deepEqual(fs.readdirSync(path.join(root, 'tests')).sort(), ['pipeline-regressions.test.mjs', 'public-release.test.mjs', 'scoring.test.mjs']);
+assert.deepEqual(fs.readdirSync(path.join(root, 'tests')).sort(), ['feed-sources.test.mjs', 'pipeline-regressions.test.mjs', 'public-release.test.mjs', 'scoring.test.mjs']);
 assert.deepEqual(fs.readdirSync(path.join(root, 'config', 'scorecards')).sort(), ['_template.json', 'protein_design.json']);
 
 const sensitive = [
@@ -53,4 +53,4 @@ function walk(dir) {
   }
 }
 walk(root);
-console.log('Public 5.2.21 config, file-scope, and privacy smoke tests: PASS');
+console.log('Public 5.3.1 config, file-scope, and privacy smoke tests: PASS');

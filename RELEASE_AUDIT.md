@@ -1,10 +1,10 @@
-# 5.2.21 public release audit / 公开分发审计
+# 5.3.1 public release audit / 公开分发审计
 
 ## Scope / 范围
 
-This audit concerns the **current 5.2.21 archives and files committed for this release**, not data already present in a user's Zotero profile, earlier local packages, or third-party caches. / 本报告只覆盖当前 5.2.21 发布物；不把用户资料、旧本地包或第三方缓存误称为已清理。
+This audit concerns the **current 5.3.1 archives and files committed for this release**, not data already present in a user's Zotero profile, earlier local packages, or third-party caches. / 本报告只覆盖当前 5.3.1 发布物；不把用户资料、旧本地包或第三方缓存误称为已清理。
 
-The XPI allowlist is `manifest.json`, `bootstrap.js`, `prefs.js`, `config/`, `content/`, `locale/`, and `web/`. The source archive adds `README.md`, `README_EN.md`, this audit, `updates.json`, and three public regression tests. No real database, PDF, log, profile, screenshot, historical scoring report, or private fixture is included.
+The XPI allowlist is `manifest.json`, `bootstrap.js`, `prefs.js`, `config/`, `content/`, `locale/`, and `web/`. The source archive adds `README.md`, `README_EN.md`, this audit, `updates.json`, and four public regression tests. No real database, PDF, log, profile, screenshot, historical scoring report, or private fixture is included.
 
 ## Factory configuration / 出厂配置
 
@@ -24,4 +24,4 @@ Known limitations: no clean-profile Zotero 10 live-install acceptance, live Olla
 
 ## Findings / 结论
 
-The inspected 5.2.21 public file set contains no known personal author list, private server address, real user data, or credential. No source scan can prove that a future user configuration is safe to publish; always inspect any new release archive before uploading. / 本次已检查的公开文件集未发现已知个人作者名单、私有服务器地址、真实用户数据或凭据；今后每次发布仍需重新审计。
+The inspected 5.3.1 public file set contains no known personal author list, private server address, real user data, or credential. No source scan can prove that a future user configuration is safe to publish; always inspect any new release archive before uploading. / 本次已检查的公开文件集未发现已知个人作者名单、私有服务器地址、真实用户数据或凭据；今后每次发布仍需重新审计。

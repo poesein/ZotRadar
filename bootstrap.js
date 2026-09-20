@@ -70,7 +70,7 @@ function _showDiagnostics(Zotero) {
   let stage = 'unknown', error = '';
   try { stage = Zotero.Prefs.get('extensions.zotradar.startupStage', true) || 'unknown'; } catch (_) {}
   try { error = Zotero.Prefs.get('extensions.zotradar.startupError', true) || ''; } catch (_) {}
-  const message = `Version: ${ZotRadar && ZotRadar.version || '5.2.21'}\nStartup stage: ${stage}\n\n${error ? 'Startup error:\n' + error : 'No startup error was recorded.'}`;
+  const message = `Version: ${ZotRadar && ZotRadar.version || '5.3.1'}\nStartup stage: ${stage}\n\n${error ? 'Startup error:\n' + error : 'No startup error was recorded.'}`;
   try { Zotero.alert(null, 'ZotRadar Diagnostics', message); }
   catch (_) {
     try { Services.prompt.alert(null, 'ZotRadar Diagnostics', message); } catch (_) {}

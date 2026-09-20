@@ -93,14 +93,14 @@
     if(ZR.State.runInProgress)return{ok:false,error:'run already in progress'};
     ZR.State.runInProgress=true;
     let runID=null;
-    const stats={fetched:0,papers:0,screenings:0,errors:0,filtered_correction:0,filtered_existing:0,filtered_zotero:0,subscription_id:null};
+    const stats={fetched:0,papers:0,screenings:0,errors:0,feed_errors:[],filtered_correction:0,filtered_existing:0,filtered_zotero:0,subscription_id:null};
     try{
       const selected=subscriptionID?ZR.ScorecardManager.subscription(subscriptionID):null;
       stats.subscription_id=selected?selected.id:null;
       runID=await ZR.DB.startRun(selected?`feeds:${selected.id}`:'feeds');
       const allFeedIDs=selected?selected.feed_ids:[...new Set(ZR.ScorecardManager.activeSubscriptions().flatMap(s=>s.feed_ids||[]))];
       const fr=await ZR.Feeds.fetchAll(allFeedIDs);
-      stats.fetched=fr.fetched;stats.errors+=fr.errors;
+      stats.fetched=fr.fetched;stats.errors+=fr.errors;stats.feed_errors=fr.feed_errors||[];
       for(let p of fr.papers){
         let targets=[];
         try{

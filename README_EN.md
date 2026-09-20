@@ -2,7 +2,9 @@
 
 ZotRadar is a local literature radar for Zotero 10. It fetches new papers from configurable feeds, evaluates their relevance with editable scorecards, computes a reading-priority score, and brings search, review, and feedback into a native Zotero window. [简体中文](README.md)
 
-Current version: **5.2.21**. [Installable XPI](releases/5.2.21/ZotRadar-5.2.21-zotero10.xpi) · [SHA-256](releases/5.2.21/SHA256SUMS.txt) · [source ZIP](releases/5.2.21/ZotRadar-5.2.21-source.zip)
+Current version: **5.3.1**. [Installable XPI](releases/5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [SHA-256](releases/5.3.1/SHA256SUMS.txt) · [source ZIP](releases/5.3.1/ZotRadar-5.3.1-source.zip)
+
+Every release increments the version. For example, 5.3.1 follows 5.2.21; the next maintenance release will start at 5.3.2.
 
 ## Features
 
@@ -34,6 +36,7 @@ Upgrades preserve subscriptions, feeds, user scorecards, feedback, and preferenc
 ## Typical workflow
 
 1. Select or create a research direction on Subscriptions and bind its feeds and scorecard.
+   For a new feed, choose “RSS / Atom” and enter a direct feed URL (including PubMed RSS). “Feed link” auto-detects RSS, Atom, or JSON Feed; JSON Feed also has a dedicated type. Ordinary HTML pages cannot be used as feeds. “Europe PMC API” requires its API URL and a search query. Test the feed and inspect any error detail before running the whole direction.
 2. Review the scorecard's DIRECT, CONTEXTUAL, TRANSFERABLE, and OUT_OF_SCOPE boundaries. Edit topics, aliases, or exclusions as needed.
 3. Run “Fetch and Score Now.” New papers are deduplicated before model analysis; existing regular Zotero items are not imported again.
 4. In Papers, filter by grade, scope, read state, or import state; sort by priority, date, or impact factor. Expand a row for the abstract, DOI, evidence, and score breakdown.
@@ -57,6 +60,6 @@ The System page can explicitly inspect and import a legacy database. The source 
 node --test tests/*.test.mjs
 ```
 
-Offline checks cover factory references, generic scoring, file scope, and common sensitive-string patterns. See the [release audit](RELEASE_AUDIT.md). **Version 5.2.21 has not yet passed a clean-profile Zotero 10 installation, live feed, and live model-scoring acceptance test.** Offline tests do not replace that verification. Bug reports should include Zotero/ZotRadar versions, reproduction steps, and redacted errors.
+Offline checks cover factory references, generic scoring, RSS/Atom/JSON Feed paths, file scope, and common sensitive-string patterns. See the [release audit](RELEASE_AUDIT.md). **Version 5.3.1 has not yet passed a clean-profile Zotero 10 installation, live feed, and live model-scoring acceptance test.** Offline tests do not replace that verification. Bug reports should include Zotero/ZotRadar versions, reproduction steps, and redacted errors.
 
 No open-source license is included at present. Public source visibility alone does not grant modification or redistribution rights.

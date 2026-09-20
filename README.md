@@ -1,10 +1,8 @@
 # ZotRadar —— 文献订阅与打分分级管理
 
-ZotRadar 是一款适用于 Zotero 10 的本地文献雷达插件。它从订阅源获取新论文，依据可编辑的「评估卡」判断论文与研究方向的关系，给出阅读优先分，并在 Zotero 原生窗口中集中展示、检索与反馈。[English](README_EN.md)
+适应场景：解决研究者订阅源头泛布多平台、订阅更新篇目多且质量参次不齐导致的耗时耗力。本插件统一多种格式（RSS订阅、预印本路径、网页检索）的来源，并基于研究者兴趣为来源篇目逐一打分分级，使研究者可以优先关注重点文献，减少审阅时间。打分机制灵活可调，适配多研究方向便捷切换、文献标题翻译、原链接跳转、关注作者突出显示与作者谷歌学术链接跳转等多种使用功能。
 
-当前版本：**5.3.1**。安装包：[下载 XPI](releases/5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [SHA-256](releases/5.3.1/SHA256SUMS.txt) · [源码 ZIP](releases/5.3.1/ZotRadar-5.3.1-source.zip)
-
-每次发布都会递增版本号；例如 5.2.21 之后，本次为 5.3.1，后续修补版将从 5.3.2 开始。
+[English](README_EN.md) · [下载 5.3.1 XPI](releases/5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [问题反馈](https://github.com/poesein/ZotRadar/issues)
 
 ## 主要功能
 <img width="1719" height="1122" alt="image" src="https://github.com/user-attachments/assets/3dab5508-f8cb-46d8-8d91-d2a7dc922ed8" />

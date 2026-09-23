@@ -2,7 +2,7 @@
 
 适应场景：解决研究者订阅源头泛布多平台、订阅更新篇目多且质量参次不齐导致的耗时耗力。本插件统一多种格式（RSS订阅、预印本路径、网页检索）的来源，并基于研究者兴趣为来源篇目逐一打分分级，使研究者可以优先关注重点文献，减少审阅时间。打分机制灵活可调，适配多研究方向便捷切换、文献标题翻译、原链接跳转、关注作者突出显示与作者谷歌学术链接跳转等多种使用功能。
 
-[English](README_EN.md) · [下载 5.4.1 XPI](releases/5.4.1/ZotRadar-5.4.1-zotero10.xpi) · [问题反馈](https://github.com/poesein/ZotRadar/issues)
+[English](README_EN.md) · [下载 5.4.1 XPI](https://github.com/poesein/ZotRadar/releases/download/v5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [问题反馈](https://github.com/poesein/ZotRadar/issues)
 
 ## 5.4.1：API 接入与思考强度
 

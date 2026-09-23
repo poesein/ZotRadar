@@ -4,14 +4,6 @@ ZotRadar is a local literature radar for Zotero 10. It fetches new papers from c
 
 Current version: **5.4.1**. [Installable XPI](releases/5.4.1/ZotRadar-5.4.1-zotero10.xpi) · [SHA-256](releases/5.4.1/SHA256SUMS.txt) · [source ZIP](releases/5.4.1/ZotRadar-5.4.1-source.zip)
 
-## 5.4.1: model APIs and reasoning effort
-
-Local Ollama remains the default. Remote providers include DeepSeek, OpenAI, Anthropic, Google Gemini, Qwen / DashScope, and third-party OpenAI-compatible gateways. For CommandCode or another gateway, select the third-party provider and enter its base URL, key, and exact model ID.
-
-Model settings now include Default, Off, Minimal, Low, Medium, High, Extra high, and Maximum reasoning effort. Supported levels depend on the model. Default preserves existing behavior; ordinary Ollama models use on/off while gpt-oss supports low/medium/high. Explicit thinking allows at least 16,384 output tokens (32,768 for extra high/maximum), which may increase cost and latency. Different effort settings have separate scoring cache identities.
-
-Compared with local 5.4.0, this adds reasoning only; no independent protocol selection or changes to gateway routing are included.
-
 ## Features
 
 - **Direction-based subscriptions.** Each direction binds one scorecard and any number of feeds. The factory example is Protein Design, with Europe PMC feeds for published papers and preprints. Directions, feeds, and scorecards can be added or edited in the panel.

@@ -2,17 +2,7 @@
 
 适应场景：解决研究者订阅源头泛布多平台、订阅更新篇目多且质量参次不齐导致的耗时耗力。本插件统一多种格式（RSS订阅、预印本路径、网页检索）的来源，并基于研究者兴趣为来源篇目逐一打分分级，使研究者可以优先关注重点文献，减少审阅时间。打分机制灵活可调，适配多研究方向便捷切换、文献标题翻译、原链接跳转、关注作者突出显示与作者谷歌学术链接跳转等多种使用功能。
 
-[English](README_EN.md) · [下载 5.4.1 XPI](https://github.com/poesein/ZotRadar/releases/download/v5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [问题反馈](https://github.com/poesein/ZotRadar/issues)
-
-## 5.4.1：API 接入与思考强度
-
-默认仍使用本地 Ollama；也可选择 DeepSeek、OpenAI、Anthropic、Google Gemini、通义千问 / DashScope 或第三方 OpenAI 兼容 API。第三方平台（如 CommandCode）请选择“第三方 OpenAI 兼容 API”，填写该平台基础地址、密钥及完整模型 ID。凭据不包含在安装包中。
-
-在 Zotero 设置 → ZotRadar → 模型中新增“思考强度”：默认、关闭、极低、低、中、高、超高、最大。默认保持原有行为；各模型支持的档位不同，普通 Ollama 模型按开/关处理，gpt-oss 支持低/中/高。显式开启思考时，输出上限至少为 16,384 token（超高/最大为 32,768），可能增加耗时和费用。不同强度隔离评分缓存，不删除历史记录。
-
-本次相对本地 5.4.0 仅新增思考强度及必要的参数适配，没有增加独立协议设置或修改第三方地址选择逻辑。
-
-[源码 ZIP](releases/5.4.1/ZotRadar-5.4.1-source.zip) · [SHA-256](releases/5.4.1/SHA256SUMS.txt)
+[English](README_EN.md) · [下载 5.4.1 XPI](https://raw.githubusercontent.com/poesein/ZotRadar/main/releases/5.4.1/ZotRadar-5.4.1-zotero10.xpi) · [问题反馈](https://github.com/poesein/ZotRadar/issues)
 
 ## 主要功能
 <img width="1719" height="1122" alt="image" src="https://github.com/user-attachments/assets/3dab5508-f8cb-46d8-8d91-d2a7dc922ed8" />

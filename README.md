@@ -2,7 +2,17 @@
 
 适应场景：解决研究者订阅源头泛布多平台、订阅更新篇目多且质量参次不齐导致的耗时耗力。本插件统一多种格式（RSS订阅、预印本路径、网页检索）的来源，并基于研究者兴趣为来源篇目逐一打分分级，使研究者可以优先关注重点文献，减少审阅时间。打分机制灵活可调，适配多研究方向便捷切换、文献标题翻译、原链接跳转、关注作者突出显示与作者谷歌学术链接跳转等多种使用功能。
 
-[English](README_EN.md) · [下载 5.3.1 XPI](releases/5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [问题反馈](https://github.com/poesein/ZotRadar/issues)
+[English](README_EN.md) · [下载 5.4.1 XPI](releases/5.4.1/ZotRadar-5.4.1-zotero10.xpi) · [问题反馈](https://github.com/poesein/ZotRadar/issues)
+
+## 5.4.1：API 接入与思考强度
+
+默认仍使用本地 Ollama；也可选择 DeepSeek、OpenAI、Anthropic、Google Gemini、通义千问 / DashScope 或第三方 OpenAI 兼容 API。第三方平台（如 CommandCode）请选择“第三方 OpenAI 兼容 API”，填写该平台基础地址、密钥及完整模型 ID。凭据不包含在安装包中。
+
+在 Zotero 设置 → ZotRadar → 模型中新增“思考强度”：默认、关闭、极低、低、中、高、超高、最大。默认保持原有行为；各模型支持的档位不同，普通 Ollama 模型按开/关处理，gpt-oss 支持低/中/高。显式开启思考时，输出上限至少为 16,384 token（超高/最大为 32,768），可能增加耗时和费用。不同强度隔离评分缓存，不删除历史记录。
+
+本次相对本地 5.4.0 仅新增思考强度及必要的参数适配，没有增加独立协议设置或修改第三方地址选择逻辑。
+
+[源码 ZIP](releases/5.4.1/ZotRadar-5.4.1-source.zip) · [SHA-256](releases/5.4.1/SHA256SUMS.txt)
 
 ## 主要功能
 <img width="1719" height="1122" alt="image" src="https://github.com/user-attachments/assets/3dab5508-f8cb-46d8-8d91-d2a7dc922ed8" />
@@ -22,11 +32,11 @@
 | --- | --- |
 | Zotero | 10.0.x |
 | 操作系统 | 由 Zotero 10 支持的平台；本版本主要在 Windows 环境开发 |
-| 评分模型 | 可访问的 Ollama 服务和支持 JSON 输出的模型；默认示例为本机 `qwen3:8b` |
+| 评分模型 | 可访问的 Ollama 或远程模型 API，模型须支持 JSON 输出；默认示例为本机 `qwen3:8b` |
 | 期刊指标 | 可选 easyScholar 密钥；不配置时不伪造 IF 或分区 |
 
 1. 备份 Zotero 数据目录，从上方下载 XPI，在 Zotero「工具 → 插件／扩展」中选择从文件安装，随后完整退出并重启 Zotero。
-2. 在 ZotRadar 设置页确认 Ollama 地址、模型、上下文长度和超时。默认地址是 `http://127.0.0.1:11434`。远程模型需要手动配置地址；插件不附带模型或服务器凭据。
+2. 在 ZotRadar 设置页选择提供方，确认模型、地址、API 密钥（远程 API）、思考强度和超时。默认地址是 `http://127.0.0.1:11434`。远程模型需要手动配置地址；插件不附带模型或服务器凭据。
 3. 打开 ZotRadar 独立窗口，先查看「系统」页是否正常，再在「订阅」页检查示例 Feed，用少量论文测试抓取和评分。
 4. 如需期刊 IF 与分区，在设置中配置自己的 easyScholar 密钥；如需自动运行，再确认每日时间和单次抓取上限。
 
@@ -48,7 +58,7 @@
 
 本仓库的安装包只包含程序文件和蛋白设计示例配置，不包含个人 Zotero 文献库、PDF、反馈记录、用户配置、重点作者名单、私有服务器地址或密钥。运行时数据保存在本地 Zotero 数据目录，升级或卸载插件并不等同于删除这些数据。
 
-论文抓取会访问已配置的 Feed（示例为 Europe PMC）；评分与译题会向设置中的 Ollama 服务发送论文标题/摘要；启用期刊查询时会访问 easyScholar。配置远程服务前，应自行确认相应数据与网络政策。ZotRadar 的 `/zotradar/api/*` 是本机兼容接口，修改操作需要本地 token；不要将 Zotero 本地 API 端口直接暴露到公网。
+论文抓取会访问已配置的 Feed（示例为 Europe PMC）；评分与译题会向设置中的 Ollama 服务或远程模型 API 发送论文标题/摘要；启用期刊查询时会访问 easyScholar。配置远程服务前，应自行确认相应数据与网络政策。ZotRadar 的 `/zotradar/api/*` 是本机兼容接口，修改操作需要本地 token；不要将 Zotero 本地 API 端口直接暴露到公网。
 
 旧版数据库可在「系统」页显式选择并预检；原文件以只读方式打开，目标库导入使用事务和指纹防重复。迁移前请备份数据，并在测试资料中核对结果。不要在公开 issue 中附上数据库、密钥或未脱敏日志。
 
@@ -60,7 +70,7 @@
 node --test tests/*.test.mjs
 ```
 
-离线检查覆盖出厂配置引用、通用评分、RSS/Atom/JSON Feed 解析路径、文件范围与常见敏感字符串。发布文件核查见 [RELEASE_AUDIT.md](RELEASE_AUDIT.md)。**5.3.1 尚未完成全新 Zotero 10 资料中的实机安装、抓取和评分验收**；离线测试不替代真实运行测试。问题反馈请提供 Zotero/ZotRadar 版本、复现步骤和脱敏错误。
+16 项自动测试通过，覆盖原有评分流程、API 请求格式、思考强度映射、缓存隔离及设置校验；31 个 JavaScript 文件通过语法检查。发布文件核查见 [RELEASE_AUDIT.md](RELEASE_AUDIT.md)。**5.4.1 尚未完成全新 Zotero 10 资料中的实机安装、抓取和评分验收**；离线测试不替代真实运行测试。问题反馈请提供 Zotero/ZotRadar 版本、复现步骤和脱敏错误。
 
 ## 许可证
 

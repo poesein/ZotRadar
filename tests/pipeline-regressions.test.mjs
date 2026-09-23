@@ -14,7 +14,7 @@ let stored={...fetched,id:1,source_records:[...fetched.source_records]},modelCal
 const latest=new Map([['a',{scorecard_id:'card',scorecard_hash:'hash',prompt_contract_version:'prompt',scoring_policy_version:'policy',model:'model',scope:'DIRECT'}]]);
 const ZR={
   State:{runInProgress:false},Config:{subscriptions:{subscriptions}},
-  Utils:{getPref:()=> 'model',hashString:x=>x,nowISO:()=>new Date().toISOString(),log:()=>{},setPref:()=>{},safeJSON:JSON.parse,randomToken:()=> 'token'},
+  Utils:{getPref:()=> 'model',hashString:x=>x,nowISO:()=>new Date().toISOString(),log:()=>{},setPref:()=>{},safeJSON:JSON.parse,randomToken:()=> 'token',stripMarkup:x=>String(x||'')},
   DB:{findExistingPaper:async()=>stored?.id||null,getPaper:async()=>stored,
     latestPaperSubscriptionScreening:async(_id,sub)=>latest.get(sub)||null,
     startRun:async()=>1,finishRun:async()=>{},loadItemCache:async()=>{},
@@ -24,7 +24,7 @@ const ZR={
   ScorecardManager:{activeSubscriptions:()=>subscriptions,subscription:id=>subscriptions.find(s=>s.id===id)},
   Feeds:{fetchAll:async()=>({papers:[{...fetched}],fetched:1,errors:0,feed_ids:['feed']}),completeFromEPMC:async p=>p,
     subscriptionsFor:()=>subscriptions,matchesSubscription:()=>true},
-  Evidence:{collect:()=>({})},Ollama:{PROMPT_VERSION:'prompt',screen:async()=>{modelCalls++;return{judgement:{scope:'DIRECT',strength:'HIGH'},model:'model',raw:'{}'}}},
+  Evidence:{collect:()=>({})},Ollama:{PROMPT_VERSION:'prompt',modelID:()=> 'model',screen:async()=>{modelCalls++;return{judgement:{scope:'DIRECT',strength:'HIGH'},model:'model',raw:'{}'}}},
   Feedback:{adjustment:async()=>({adjustment:0,version:null,details:{}})},
   Journal:{score:async()=>({score:50,source:'no journal'}),preprintSource:p=>/^10\.21203\/rs\./.test(p.doi||'')?'Research Square':null},
   Scoring:{POLICY:'policy',forCard:()=>({}),score:(_j,opts)=>{scores.push(opts);return{base_relevance:95,feedback_adjustment:0,personalized_relevance:95,journal_score:50,journal_adjustment:0,reading_priority:95,grade:'A'}}},

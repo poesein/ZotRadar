@@ -2,8 +2,26 @@
   'use strict';
 
   const SCHEMA = [
+    {key:'modelProvider', labelKey:'setting.modelProvider', group:'models', type:'enum', default:'ollama', choices:[
+      {value:'ollama',labelKey:'setting.providerOllama'},
+      {value:'deepseek',labelKey:'setting.providerDeepSeek'},
+      {value:'openai',labelKey:'setting.providerOpenAI'},
+      {value:'anthropic',labelKey:'setting.providerAnthropic'},
+      {value:'gemini',labelKey:'setting.providerGemini'},
+      {value:'qwen',labelKey:'setting.providerQwen'},
+      {value:'openai_compatible',labelKey:'setting.providerCompatible'}
+    ]},
     {key:'ollamaBaseURL', labelKey:'setting.ollamaBaseURL', group:'models', type:'string', default:'http://127.0.0.1:11434', placeholder:'http://127.0.0.1:11434'},
     {key:'screeningModel', labelKey:'setting.screeningModel', group:'models', type:'string', default:'qwen3:8b', placeholder:'qwen3:8b'},
+    {key:'apiBaseURL', labelKey:'setting.apiBaseURL', group:'models', type:'string', default:'', placeholderKey:'setting.apiBaseURLHint'},
+    {key:'apiKey', labelKey:'setting.apiKey', group:'models', type:'secret', default:'', placeholderKey:'setting.apiKeyHint'},
+    {key:'apiModel', labelKey:'setting.apiModel', group:'models', type:'string', default:'', placeholderKey:'setting.apiModelHint'},
+    {key:'reasoningEffort', labelKey:'setting.reasoningEffort', group:'models', type:'enum', default:'auto', choices:[
+      {value:'auto',labelKey:'setting.effortAuto'}, {value:'none',labelKey:'setting.effortNone'},
+      {value:'minimal',labelKey:'setting.effortMinimal'}, {value:'low',labelKey:'setting.effortLow'},
+      {value:'medium',labelKey:'setting.effortMedium'}, {value:'high',labelKey:'setting.effortHigh'},
+      {value:'xhigh',labelKey:'setting.effortXHigh'}, {value:'max',labelKey:'setting.effortMax'}
+    ]},
     {key:'numCtx', labelKey:'setting.numCtx', group:'models', type:'integer', default:16384, min:2048, max:131072, step:1024},
     {key:'timeoutSeconds', labelKey:'setting.timeoutSeconds', group:'models', type:'integer', default:120, min:10, max:900, step:10},
     {key:'defaultSubscription', labelKey:'setting.defaultSubscription', group:'screening', type:'subscription', default:'protein_design'},
@@ -51,6 +69,7 @@
     let s = String(value == null ? '' : value).trim();
     if (!s && def.type !== 'secret' && def.key !== 'priorityAuthors') s = String(def.default == null ? '' : def.default);
     if (def.key === 'ollamaBaseURL') s = s.replace(/\/+$/, '') || def.default;
+    if (def.key === 'apiBaseURL') s = s.replace(/\/+$/, '');
     return s;
   }
 
@@ -87,6 +106,7 @@
     for (const [key, raw] of Object.entries(values)) {
       const def = byKey.get(key);
       if (!def) continue;
+      if(key==='reasoningEffort'&&!def.choices.some(c=>c.value===String(raw).trim()))throw new Error('Reasoning setting: invalid effort');
       if (def.type === 'secret' && preserveBlankSecrets && !clear.has(key) && String(raw == null ? '' : raw).trim() === '') continue;
       const value = clear.has(key) ? '' : normalizeField(def, raw);
       if(key==='defaultSubscription'&&ZR.Config?.subscriptions){
@@ -94,6 +114,16 @@
         if(!rows.some(x=>x.id===value&&x.enabled!==false))throw new Error('Unknown or disabled subscription: '+value);
       }
       normalized.push([key,def,value]);
+    }
+    const prospective={};
+    for(const def of SCHEMA)prospective[def.key]=get(def.key);
+    for(const [key,,value] of normalized)prospective[key]=value;
+    if(prospective.modelProvider==='ollama'&&!/^https?:\/\//i.test(String(prospective.ollamaBaseURL||'')))throw new Error('Ollama URL must start with http:// or https://');
+    if(prospective.modelProvider!=='ollama'){
+      if(!prospective.apiKey)throw new Error('API key is required for the selected provider');
+      if(prospective.modelProvider!=='deepseek'&&!prospective.apiModel)throw new Error('API model is required for the selected provider');
+      if(prospective.modelProvider==='openai_compatible'&&!prospective.apiBaseURL)throw new Error('API base URL is required for an OpenAI-compatible provider');
+      if(prospective.modelProvider==='openai_compatible'&&!/^https?:\/\//i.test(String(prospective.apiBaseURL)))throw new Error('API base URL must start with http:// or https://');
     }
     for (const [key,def,value] of normalized) {
       if (key === 'defaultSubscription' && value !== ZR.Utils.getPref(key, def.default)) defaultChanged = true;

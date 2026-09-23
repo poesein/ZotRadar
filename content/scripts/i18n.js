@@ -299,6 +299,67 @@
     'native.feedQueryHint':'仅 Europe PMC API 必填。',
     'native.feedErrorDetails':'订阅源 {id}：{message}'
   });
+  Object.assign(STRINGS['en-US'],{
+    'setting.modelProvider':'Model provider',
+    'setting.providerOllama':'Local Ollama (default)',
+    'setting.providerDeepSeek':'DeepSeek API',
+    'setting.providerOpenAI':'OpenAI API',
+    'setting.providerAnthropic':'Anthropic API',
+    'setting.providerGemini':'Google Gemini API',
+    'setting.providerQwen':'Qwen / DashScope API',
+    'setting.providerCompatible':'Third-party OpenAI-compatible API',
+    'setting.apiBaseURL':'Third-party API base URL',
+    'setting.apiBaseURLHint':'For example: https://provider.example/v1',
+    'setting.apiKey':'API key',
+    'setting.apiKeyHint':'Stored only in this Zotero profile',
+    'setting.apiModel':'API model ID',
+    'setting.apiModelHint':'Exact model ID from the provider',
+    'prefs.testModel':'Test model connection',
+    'prefs.testingModel':'Testing the configured model with a small JSON request…',
+    'prefs.modelConnected':'Connected: {provider} / {model}',
+    'prefs.modelFailed':'Model connection failed: {error}',
+    'prefs.healthModel':'Model provider',
+    'native.modelProvider':'Model provider',
+    'prefs.intro':'Zotero-native literature radar with local Ollama or a remote model API.',
+    'prefs.settingsDesc':'Choose local Ollama (default) or a remote API. API credentials are stored in this Zotero profile.'
+  });
+  Object.assign(STRINGS['zh-CN'],{
+    'setting.modelProvider':'模型提供方',
+    'setting.providerOllama':'本地 Ollama（默认）',
+    'setting.providerDeepSeek':'DeepSeek API',
+    'setting.providerOpenAI':'OpenAI API',
+    'setting.providerAnthropic':'Anthropic API',
+    'setting.providerGemini':'Google Gemini API',
+    'setting.providerQwen':'通义千问 / DashScope API',
+    'setting.providerCompatible':'第三方 OpenAI 兼容 API',
+    'setting.apiBaseURL':'第三方 API 基础地址',
+    'setting.apiBaseURLHint':'例如：https://provider.example/v1',
+    'setting.apiKey':'API 密钥',
+    'setting.apiKeyHint':'只保存在当前 Zotero 配置中',
+    'setting.apiModel':'API 模型 ID',
+    'setting.apiModelHint':'填写提供方给出的准确模型 ID',
+    'prefs.testModel':'测试模型连接',
+    'prefs.testingModel':'正在用一个小型 JSON 请求测试当前模型…',
+    'prefs.modelConnected':'连接成功：{provider} / {model}',
+    'prefs.modelFailed':'模型连接失败：{error}',
+    'prefs.healthModel':'模型提供方',
+    'native.modelProvider':'模型提供方',
+    'prefs.intro':'Zotero 原生文献雷达：默认使用本地 Ollama，也可接入远程模型 API。',
+    'prefs.settingsDesc':'选择本地 Ollama（默认）或远程 API。API 凭据仅保存在当前 Zotero 配置中。'
+  });
+
+  Object.assign(STRINGS['en-US'],{
+    'setting.reasoningEffort':'Reasoning effort', 'setting.effortAuto':'Default (preserve current behavior)',
+    'setting.effortNone':'Off', 'setting.effortMinimal':'Minimal', 'setting.effortLow':'Low', 'setting.effortMedium':'Medium',
+    'setting.effortHigh':'High', 'setting.effortXHigh':'Extra high', 'setting.effortMax':'Maximum',
+    'setting.reasoningHint':'Supported levels depend on the model. Default keeps existing behavior. Explicit thinking automatically allows 16,384 output tokens (32,768 for extra high/maximum); it may take longer and cost more. Ollama models other than gpt-oss use an on/off switch.'
+  });
+  Object.assign(STRINGS['zh-CN'],{
+    'setting.reasoningEffort':'思考强度', 'setting.effortAuto':'默认（保持原有行为）',
+    'setting.effortNone':'关闭', 'setting.effortMinimal':'极低', 'setting.effortLow':'低', 'setting.effortMedium':'中',
+    'setting.effortHigh':'高', 'setting.effortXHigh':'超高', 'setting.effortMax':'最大',
+    'setting.reasoningHint':'各模型支持的档位不同；默认保持原有行为。显式开启思考后，输出上限自动扩为 16,384 token（超高/最大为 32,768），可能增加耗时和费用。除 gpt-oss 外，Ollama 模型按开/关处理。'
+  });
 
   function detectedLocale() {
     let raw = '';
@@ -319,14 +380,15 @@
 
   function error(err, loc=locale()) {
     const raw=String(err?.message||err||'');
-    if(/Ollama did not return valid structured JSON/i.test(raw))return loc==='zh-CN'?'模型两次返回的内容都不是完整 JSON；原评分已保留，请稍后重试。':'The model returned incomplete JSON twice; the previous score was preserved. Please retry.';
+    if(raw.startsWith('Reasoning setting:'))return loc==='zh-CN'?'思考强度设置不受该模型支持，请选择默认或兼容档位。详情：'+raw.slice(18).trim():raw;
+    if(/(?:Ollama|Model provider) did not return valid structured JSON/i.test(raw))return loc==='zh-CN'?'模型两次返回的内容都不是完整 JSON；原评分已保留，请稍后重试。':'The model returned incomplete JSON twice; the previous score was preserved. Please retry.';
     if(/timed?\s*out|NS_ERROR_NET_TIMEOUT/i.test(raw))return loc==='zh-CN'?'模型请求超时；原评分已保留。可在设置中延长请求超时后重试。':'The model request timed out; the previous score was preserved. Increase the request timeout and retry.';
     if(loc!=='zh-CN')return raw.replace(/Scorecards?/g,'Scoring');
     const messages=[
       ['Subscription required','需要填写订阅信息'],['Invalid subscription ID','订阅 ID 只能包含字母、数字、下划线和连字符'],['Subscription label required','订阅名称不能为空'],['Unknown or disabled Scorecard','Scorecard 不存在或已禁用'],['feed_ids must be an array','Feed 列表格式无效'],['Unknown feed','Feed 不存在'],['Subscription ID already exists','订阅 ID 已存在'],['At least one enabled subscription is required','至少需要保留一个已启用订阅'],['Unknown subscription','订阅不存在'],['Cannot remove the last subscription','不能删除最后一个订阅'],['Subscription is disabled','订阅已禁用'],
       ['Feed required','需要填写 Feed 信息'],['Invalid feed ID','Feed ID 格式无效'],['Feed ID already exists','Feed ID 已存在'],['Feed name required','Feed 名称不能为空'],['Feed type required','Feed 类型不能为空'],['Feed URL required','Feed URL 不能为空'],['Feed is used by subscriptions','Feed 正被订阅使用'],
       ['Invalid scorecard','Scorecard 结构无效'],['Invalid Scorecard ID','Scorecard ID 格式无效'],['New Scorecard ID may contain only','新 Scorecard ID 只能包含字母、数字、下划线和连字符'],['Scorecard ID already exists','Scorecard ID 已存在'],['Unknown Scorecard','Scorecard 不存在'],['Scorecard is used by subscriptions','Scorecard 正被订阅使用'],['Scorecard ID cannot be changed','不能直接修改 Scorecard ID，请使用复制'],['Cannot delete/disable the last active Scorecard','不能禁用或删除最后一个有效 Scorecard'],['Not a bundled Scorecard','这不是内置 Scorecard'],
-      ['paper and scorecard required','需要文献和 Scorecard'],['invalid corrected scope','纠正关系无效'],['this scope has no strength','此关系不应填写强度'],['invalid corrected strength','纠正强度无效'],['transfer topic requires TRANSFERABLE','只有可迁移关系才能填写迁移主题'],['screening not found','找不到评分记录'],['confirmation must match model judgment','确认正确必须与模型原判断一致'],['feedback not found','找不到反馈'],['profile version not found','找不到 Profile 版本'],['paper not found','找不到文献'],['Ollama unavailable','Ollama 无法连接，请检查模型地址和服务'],['Screening model not installed','设置中的筛选模型未安装'],
+      ['paper and scorecard required','需要文献和 Scorecard'],['invalid corrected scope','纠正关系无效'],['this scope has no strength','此关系不应填写强度'],['invalid corrected strength','纠正强度无效'],['transfer topic requires TRANSFERABLE','只有可迁移关系才能填写迁移主题'],['screening not found','找不到评分记录'],['confirmation must match model judgment','确认正确必须与模型原判断一致'],['feedback not found','找不到反馈'],['profile version not found','找不到 Profile 版本'],['paper not found','找不到文献'],['Ollama unavailable','Ollama 无法连接，请检查模型地址和服务'],['Model provider unavailable','模型提供方无法连接，请检查地址、密钥与模型'],['Screening model not installed','设置中的筛选模型未安装'],['Configured model not available','设置中的模型不可用'],['API key is required','请选择远程 API 后填写 API 密钥'],['API model is required','请选择远程 API 后填写模型 ID'],['API base URL is required','第三方兼容 API 必须填写基础地址'],['API base URL must start','API 基础地址必须以 http:// 或 https:// 开头'],['Ollama URL must start','Ollama 地址必须以 http:// 或 https:// 开头'],
       ['Legacy database file does not exist','旧数据库文件不存在'],['Legacy database has an active WAL file','旧数据库正在使用 WAL，请先关闭占用它的程序并建立一致的备份'],['Selected file is already a ZotRadar','所选文件已是 ZotRadar 数据库'],['Not a supported Python v4 database','这不是受支持的 Python v4 数据库'],['Unknown setting','设置项不存在'],['Failed to persist secret setting','密钥设置保存失败'],['FORBIDDEN','无权限执行此操作']
     ];
     for(const [prefix,translated] of messages)if(raw.startsWith(prefix))return translated.replace(/Scorecards?/g,'评分')+(raw.includes(':')?'：'+raw.slice(raw.indexOf(':')+1).trim():'');

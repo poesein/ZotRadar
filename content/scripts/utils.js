@@ -77,15 +77,24 @@
   }
   function stripMarkup(value) {
     const entities = { amp:'&', lt:'<', gt:'>', quot:'"', apos:"'", nbsp:' ', ndash:'–', mdash:'—', hellip:'…' };
-    return String(value || '')
-      .replace(/<\s*br\s*\/?\s*>/gi, ' ')
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code) => {
+    let text = String(value || '');
+    // Feed titles may contain literal, entity-escaped, or double-escaped HTML.
+    // Decode before removing tags; otherwise &lt;b&gt; becomes a visible <b>.
+    for (let pass = 0; pass < 3; pass++) {
+      const decoded = text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code) => {
         if (code[0] !== '#') return entities[code.toLowerCase()] ?? whole;
         const number = code[1].toLowerCase() === 'x' ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
         return number > 0 && number <= 0x10ffff && !(number >= 0xd800 && number <= 0xdfff)
           ? String.fromCodePoint(number) : whole;
-      })
+      });
+      if (decoded === text) break;
+      text = decoded;
+    }
+    return text
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      .replace(/<\s*br\b[^<>]*\/?\s*>/gi, ' ')
+      .replace(/<\/?(?:p|div|li|ul|ol|section|article|h[1-6])\b[^<>]*>/gi, ' ')
+      .replace(/<\/?[A-Za-z][A-Za-z0-9:-]*(?:\s[^<>]*?)?\s*\/?\s*>/g, '')
       .replace(/\s+/g, ' ').trim();
   }
   function escapeHTML(s) {

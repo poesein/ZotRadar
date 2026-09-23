@@ -3,9 +3,9 @@
     "zotradar@poesein": {
       "updates": [
         {
-          "version": "5.3.1",
-          "update_link": "https://raw.githubusercontent.com/poesein/ZotRadar/main/releases/5.3.1/ZotRadar-5.3.1-zotero10.xpi",
-          "update_hash": "sha256:3bbedf64dd59784e6c8beab8303d8316e398d9fcb69721b1de736f2951707dd3",
+          "version": "5.4.1",
+          "update_link": "https://raw.githubusercontent.com/poesein/ZotRadar/main/releases/5.4.1/ZotRadar-5.4.1-zotero10.xpi",
+          "update_hash": "sha256:97a86d91256ab2aaefc87cc91b99bd00f60febbe80e59c3e0747b34eba9da6ef",
           "applications": {
             "zotero": {
               "strict_min_version": "10.0",

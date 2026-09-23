@@ -6,7 +6,7 @@
     return {
       zotero_library_id:item.libraryID,
       zotero_key:item.key,
-      title:item.getField('title')||'Untitled',
+      title:ZR.Utils.stripMarkup(item.getField('title'))||'Untitled',
       abstract:item.getField('abstractNote')||'',
       authors:creators.map(c=>[c.firstName,c.lastName].filter(Boolean).join(' ')||c.name).filter(Boolean),
       published:ZR.Utils.parseDateLoose(item.getField('date')),
@@ -40,7 +40,7 @@
   }
   function applyOverride(j,fb){if(!fb||!fb.corrected_scope)return{judgement:j,overridden:false};const out={...j,scope:fb.corrected_scope,strength:fb.corrected_strength||null,transferable_topic:fb.corrected_scope==='TRANSFERABLE'?(fb.corrected_transferable_topic||j.transferable_topic||null):null,reason:fb.note||'User-corrected relevance judgement.'};if(['OUT_OF_SCOPE','UNCERTAIN'].includes(out.scope))out.strength=null;return{judgement:out,overridden:true};}
   function isCorrectionOrRetraction(paper){
-    const title=String(paper.title||'').trim();
+    const title=ZR.Utils.stripMarkup(paper.title||'');
     if(/^(?:(?:author|publisher|editorial)\s+)?(?:correction|corrigendum|erratum|retraction(?:\s+note)?|retracted(?:\s+article)?|expression\s+of\s+concern|withdrawal|withdrawn)\s*[:：\-–—.]/i.test(title))return true;
     if(/^(?:retraction\s+of|correction\s+to|corrigendum\s+to|erratum\s+(?:in|for|to)|withdrawal\s+of)\b/i.test(title))return true;
     if(/^(?:作者|出版者|期刊)?(?:更正|勘误|撤稿|撤回|关注声明)\s*[:：\-–—]?/.test(title))return true;
@@ -64,8 +64,9 @@
   }
 
   async function screenPaper(paper,subscription,{runID='manual',forceModel=false,requireModel=false}={}){
+    paper={...paper,title:ZR.Utils.stripMarkup(paper.title)||'Untitled'};
     if(isCorrectionOrRetraction(paper))throw new Error('Correction/retraction notice excluded: '+String(paper.title||'').slice(0,160));
-    const card=ZR.Scorecards.get(subscription.scorecard),paperID=await ZR.DB.upsertPaper(paper),ev=ZR.Evidence.collect(paper,card),modelPref=String(ZR.Utils.getPref('screeningModel','qwen3:8b'));let judgement,raw=null,model=modelPref;
+    const card=ZR.Scorecards.get(subscription.scorecard),paperID=await ZR.DB.upsertPaper(paper),ev=ZR.Evidence.collect(paper,card),modelPref=ZR.Ollama.modelID();let judgement,raw=null,model=modelPref;
     const key=cacheKey(paper,card,modelPref),cached=forceModel?null:await ZR.DB.getCache(key);
     if(cached){judgement=cached.judgement;raw=cached.raw_model_json;model=cached.model;}
     else{
@@ -115,7 +116,7 @@
           targets=selected?(ZR.Feeds.matchesSubscription(routed,selected)?[selected]:[]):ZR.Feeds.subscriptionsFor(routed);
           if(existingID){
             const paperChanged=!stored||stored.title!==p.title||stored.abstract!==p.abstract;
-            const model=String(ZR.Utils.getPref('screeningModel','qwen3:8b'));
+            const model=ZR.Ollama.modelID();
             const pending=[];
             for(const sub of targets){
               const card=ZR.Scorecards.get(sub.scorecard);
@@ -168,7 +169,7 @@
   }
   async function rescoreScorecard(scorecardID){const rows=await ZR.DB.latestScreenings(scorecardID,100000),seen=new Set();let n=0;for(const r of rows){if(seen.has(r.paper_id))continue;seen.add(r.paper_id);if(await rescorePaper(Number(r.paper_id),scorecardID))n++;}await ZR.DB.loadItemCache();ZR.UI&&ZR.UI.refreshColumns();return n;}
 
-  async function importPaperToZotero(paperID){const p=await ZR.DB.getPaper(paperID);if(!p)throw new Error('paper not found');if(p.zotero_key){const item=Zotero.Items.getByLibraryAndKey(p.zotero_library_id,p.zotero_key);if(item)return item;}if(p.doi){const s=new Zotero.Search();s.libraryID=Zotero.Libraries.userLibraryID;s.addCondition('DOI','is',p.doi);const ids=await s.search();if(ids.length){const item=Zotero.Items.get(ids[0]);await ZR.DB.upsertPaper({...p,zotero_library_id:item.libraryID,zotero_key:item.key});await ZR.DB.loadItemCache();ZR.UI&&ZR.UI.refreshColumns();return item;}}
+  async function importPaperToZotero(paperID){const p=await ZR.DB.getPaper(paperID);if(!p)throw new Error('paper not found');p.title=ZR.Utils.stripMarkup(p.title)||'Untitled';if(isCorrectionOrRetraction(p))throw new Error('Correction/retraction notice excluded');if(p.zotero_key){const item=Zotero.Items.getByLibraryAndKey(p.zotero_library_id,p.zotero_key);if(item)return item;}if(p.doi){const s=new Zotero.Search();s.libraryID=Zotero.Libraries.userLibraryID;s.addCondition('DOI','is',p.doi);const ids=await s.search();if(ids.length){const item=Zotero.Items.get(ids[0]);await ZR.DB.upsertPaper({...p,zotero_library_id:item.libraryID,zotero_key:item.key});await ZR.DB.loadItemCache();ZR.UI&&ZR.UI.refreshColumns();return item;}}
     const item=new Zotero.Item('journalArticle');item.libraryID=Zotero.Libraries.userLibraryID;item.setField('title',p.title);if(p.abstract)item.setField('abstractNote',p.abstract);if(p.doi)item.setField('DOI',p.doi);if(p.url)item.setField('url',p.url);if(p.journal)item.setField('publicationTitle',p.journal);if(p.published)item.setField('date',p.published);if(p.pmid||p.pmcid){let extra='';if(p.pmid)extra+=`PMID: ${p.pmid}\n`;if(p.pmcid)extra+=`PMCID: ${p.pmcid}`;item.setField('extra',extra.trim());}item.setCreators((p.authors||[]).map(author=>{if(typeof author==='string')return{creatorType:'author',name:author};if(author?.firstName||author?.lastName)return{creatorType:'author',firstName:String(author.firstName||''),lastName:String(author.lastName||'')};return{creatorType:'author',name:String(author?.name||author?.fullName||'')}}).filter(author=>author.name||author.firstName||author.lastName));const id=await item.saveTx();const saved=Zotero.Items.get(id);await ZR.DB.upsertPaper({...p,zotero_library_id:saved.libraryID,zotero_key:saved.key});await ZR.DB.loadItemCache();ZR.UI&&ZR.UI.refreshColumns();return saved;}
 
   ZR.Screening={itemToPaper,cacheKey,staleModelContract,applyOverride,isCorrectionOrRetraction,isInZotero,screenPaper,screenZoteroItems,runFeeds,rescorePaper,rescoreScorecard,importPaperToZotero};

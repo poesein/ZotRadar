@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "ZotRadar",
-  "version": "5.3.1",
+  "version": "5.4.1",
   "description": "ZotRadar native Dashboard with papers, subscriptions, scoring, feedback, system diagnostics, and legacy migration.",
   "author": "poesein",
   "icons": {

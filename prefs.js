@@ -1,5 +1,10 @@
 pref("extensions.zotradar.ollamaBaseURL", "http://127.0.0.1:11434");
 pref("extensions.zotradar.screeningModel", "qwen3:8b");
+pref("extensions.zotradar.modelProvider", "ollama");
+pref("extensions.zotradar.apiBaseURL", "");
+pref("extensions.zotradar.apiKey", "");
+pref("extensions.zotradar.apiModel", "");
+pref("extensions.zotradar.reasoningEffort", "auto");
 pref("extensions.zotradar.numCtx", 16384);
 pref("extensions.zotradar.timeoutSeconds", 120);
 pref("extensions.zotradar.defaultScorecard", "protein_design");

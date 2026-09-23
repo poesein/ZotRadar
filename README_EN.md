@@ -2,9 +2,15 @@
 
 ZotRadar is a local literature radar for Zotero 10. It fetches new papers from configurable feeds, evaluates their relevance with editable scorecards, computes a reading-priority score, and brings search, review, and feedback into a native Zotero window. [简体中文](README.md)
 
-Current version: **5.3.1**. [Installable XPI](releases/5.3.1/ZotRadar-5.3.1-zotero10.xpi) · [SHA-256](releases/5.3.1/SHA256SUMS.txt) · [source ZIP](releases/5.3.1/ZotRadar-5.3.1-source.zip)
+Current version: **5.4.1**. [Installable XPI](releases/5.4.1/ZotRadar-5.4.1-zotero10.xpi) · [SHA-256](releases/5.4.1/SHA256SUMS.txt) · [source ZIP](releases/5.4.1/ZotRadar-5.4.1-source.zip)
 
-Every release increments the version. For example, 5.3.1 follows 5.2.21; the next maintenance release will start at 5.3.2.
+## 5.4.1: model APIs and reasoning effort
+
+Local Ollama remains the default. Remote providers include DeepSeek, OpenAI, Anthropic, Google Gemini, Qwen / DashScope, and third-party OpenAI-compatible gateways. For CommandCode or another gateway, select the third-party provider and enter its base URL, key, and exact model ID.
+
+Model settings now include Default, Off, Minimal, Low, Medium, High, Extra high, and Maximum reasoning effort. Supported levels depend on the model. Default preserves existing behavior; ordinary Ollama models use on/off while gpt-oss supports low/medium/high. Explicit thinking allows at least 16,384 output tokens (32,768 for extra high/maximum), which may increase cost and latency. Different effort settings have separate scoring cache identities.
+
+Compared with local 5.4.0, this adds reasoning only; no independent protocol selection or changes to gateway routing are included.
 
 ## Features
 
@@ -23,11 +29,11 @@ Scores are reading aids, not guarantees of paper quality. Experimental claims be
 | --- | --- |
 | Zotero | 10.0.x |
 | Operating system | A platform supported by Zotero 10; this version was primarily developed on Windows |
-| Scoring model | A reachable Ollama server and a JSON-capable model; the local `qwen3:8b` setting is an example default |
+| Scoring model | A reachable Ollama server or remote model API with a JSON-capable model; the local `qwen3:8b` setting is an example default |
 | Journal metrics | Optional easyScholar key; missing metrics are never fabricated |
 
 1. Back up the Zotero data directory. Download the XPI above, install it from the Zotero add-ons manager, then fully quit and restart Zotero.
-2. In ZotRadar Settings, check the Ollama URL, model, context size, and timeout. The default URL is `http://127.0.0.1:11434`. Remote servers must be configured manually; no model or server credential is bundled.
+2. In ZotRadar Settings, choose the provider and check its URL, model, API key (for remote APIs), reasoning effort, and timeout. The default URL is `http://127.0.0.1:11434`. Remote servers must be configured manually; no model or server credential is bundled.
 3. Open the standalone ZotRadar window. Check the System page, then inspect the example feeds on Subscriptions and test a small fetch/scoring batch.
 4. To show journal impact factors and quartiles, configure an easyScholar key. Enable scheduled runs only after checking the daily time and per-feed limit.
 
@@ -48,7 +54,7 @@ Journal metrics are queried from easyScholar and cached locally; unavailable val
 
 The installable package contains program files and a public Protein Design example only—not a Zotero library, PDFs, feedback, user configuration, named priority authors, private server address, or credentials. Runtime data stays in the local Zotero data directory; upgrading or uninstalling the add-on is different from deleting that data.
 
-Fetching contacts the configured feeds (Europe PMC in the example). Scoring and title translation send paper titles and abstracts to the configured Ollama service. Optional journal lookups contact easyScholar. Review the data policies before choosing remote services. `/zotradar/api/*` is a localhost compatibility API whose modifying calls require a local token; do not expose the Zotero local API port directly to the public internet.
+Fetching contacts the configured feeds (Europe PMC in the example). Scoring and title translation send paper titles and abstracts to the configured Ollama service or remote model API. Optional journal lookups contact easyScholar. Review the data policies before choosing remote services. `/zotradar/api/*` is a localhost compatibility API whose modifying calls require a local token; do not expose the Zotero local API port directly to the public internet.
 
 The System page can explicitly inspect and import a legacy database. The source file is read-only, while destination import uses a transaction and fingerprint to avoid duplicate imports. Back up first and verify the result in a test profile. Do not attach databases, credentials, or unredacted logs to public issues.
 
@@ -60,7 +66,7 @@ The System page can explicitly inspect and import a legacy database. The source 
 node --test tests/*.test.mjs
 ```
 
-Offline checks cover factory references, generic scoring, RSS/Atom/JSON Feed paths, file scope, and common sensitive-string patterns. See the [release audit](RELEASE_AUDIT.md). **Version 5.3.1 has not yet passed a clean-profile Zotero 10 installation, live feed, and live model-scoring acceptance test.** Offline tests do not replace that verification. Bug reports should include Zotero/ZotRadar versions, reproduction steps, and redacted errors.
+All 16 automated tests and 31 JavaScript syntax checks pass, covering original scoring, provider request formats, reasoning mappings, cache isolation, and settings validation. See the [release audit](RELEASE_AUDIT.md). **Version 5.4.1 has not yet passed a clean-profile Zotero 10 installation, live feed, and live model-scoring acceptance test.** Offline tests do not replace that verification. Bug reports should include Zotero/ZotRadar versions, reproduction steps, and redacted errors.
 
 ## License
 

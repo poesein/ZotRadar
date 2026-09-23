@@ -207,15 +207,16 @@ CREATE TABLE IF NOT EXISTS runs (
   }
   async function lastID() { return Number(await value('SELECT last_insert_rowid()')); }
 
-  function titleNorm(t) { return ZR.Utils.normalizeText(t).replace(/[^a-z0-9\u4e00-\u9fff ]/g,'').replace(/\s+/g,' ').trim(); }
+  function titleNorm(t) { return ZR.Utils.normalizeText(ZR.Utils.stripMarkup(t)).replace(/[^a-z0-9\u4e00-\u9fff ]/g,'').replace(/\s+/g,' ').trim(); }
 
   async function upsertPaper(p) {
     const now=ZR.Utils.nowISO(); let found=null;
+    const title=ZR.Utils.stripMarkup(p.title)||'Untitled';
     if (p.zotero_library_id != null && p.zotero_key) found=await row('SELECT id FROM papers WHERE zotero_library_id=? AND zotero_key=?',[p.zotero_library_id,p.zotero_key]);
     if (!found && p.doi) found=await row('SELECT id FROM papers WHERE doi=? ORDER BY id LIMIT 1',[ZR.Utils.normalizeDOI(p.doi)]);
     if (!found && p.pmid) found=await row('SELECT id FROM papers WHERE pmid=? ORDER BY id LIMIT 1',[String(p.pmid)]);
     if (!found) found=await row('SELECT id FROM papers WHERE title_norm=? ORDER BY id LIMIT 1',[titleNorm(p.title)]);
-    const values=[p.zotero_library_id??null,p.zotero_key||null,p.title||'Untitled',titleNorm(p.title),p.abstract||'',JSON.stringify(p.authors||[]),p.published||null,ZR.Utils.normalizeDOI(p.doi),p.pmid||null,p.pmcid||null,p.url||'',p.journal||'',Number(p.citation_count||0),JSON.stringify(p.source_records||[]),now];
+    const values=[p.zotero_library_id??null,p.zotero_key||null,title,titleNorm(title),p.abstract||'',JSON.stringify(p.authors||[]),p.published||null,ZR.Utils.normalizeDOI(p.doi),p.pmid||null,p.pmcid||null,p.url||'',p.journal||'',Number(p.citation_count||0),JSON.stringify(p.source_records||[]),now];
     if (found) {
       await exec(`UPDATE papers SET zotero_library_id=COALESCE(?,zotero_library_id),zotero_key=COALESCE(?,zotero_key),title=?,title_norm=?,abstract=?,authors_json=?,published=?,doi=COALESCE(?,doi),pmid=COALESCE(?,pmid),pmcid=COALESCE(?,pmcid),url=?,journal=?,citation_count=?,source_records_json=?,updated_at=? WHERE id=?`,[...values,Number(found.id)]);
       return Number(found.id);
@@ -356,9 +357,10 @@ CREATE TABLE IF NOT EXISTS runs (
 
   async function loadItemCache(){
     const subscriptionID=String(ZR.Utils.getPref('defaultSubscription','protein_design'));
-    const rows=await all(`SELECT p.id paper_id,p.zotero_library_id,p.zotero_key,s.reading_priority,s.grade,s.scope,s.strength,s.scorecard_id,s.subscription_id,s.topics_json FROM screenings s JOIN papers p ON p.id=s.paper_id WHERE p.zotero_key IS NOT NULL AND s.subscription_id=? AND s.id IN (SELECT MAX(id) FROM screenings WHERE subscription_id=? GROUP BY paper_id,subscription_id)`,[subscriptionID,subscriptionID]);
+    const rows=await all(`SELECT p.id paper_id,p.title paper_title,p.zotero_library_id,p.zotero_key,s.reading_priority,s.grade,s.scope,s.strength,s.scorecard_id,s.subscription_id,s.topics_json FROM screenings s JOIN papers p ON p.id=s.paper_id WHERE p.zotero_key IS NOT NULL AND s.subscription_id=? AND s.id IN (SELECT MAX(id) FROM screenings WHERE subscription_id=? GROUP BY paper_id,subscription_id)`,[subscriptionID,subscriptionID]);
     const next=new Map();
     for(const r of rows){
+      if(ZR.Screening?.isCorrectionOrRetraction({title:r.paper_title}))continue;
       // Zotero DB rows are column-access Proxies. Do not assign new fields to
       // them or retain them in UI state; copy the selected columns instead.
       const item=pickRow(r,['paper_id','zotero_library_id','zotero_key','reading_priority','grade','scope','strength','scorecard_id','subscription_id','topics_json']);

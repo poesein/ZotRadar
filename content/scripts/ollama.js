@@ -9,14 +9,155 @@
   const DEPTHS = new Set(['HIGH', 'MEDIUM', 'LOW', 'UNKNOWN']);
   const TYPES = new Set(['MECHANISM', 'FUNCTION', 'STRUCTURE', 'SPATIAL_SIGNALING', 'VARIANT', 'INTERVENTION', 'METHOD', 'SYNTHESIS', 'DESCRIPTIVE', 'CLINICAL', 'NONE']);
 
+  const PROVIDERS = {
+    ollama: {format:'ollama', label:'Ollama'},
+    deepseek: {format:'openai', label:'DeepSeek', base:'https://api.deepseek.com', model:'deepseek-flash'},
+    openai: {format:'openai', label:'OpenAI', base:'https://api.openai.com/v1'},
+    anthropic: {format:'anthropic', label:'Anthropic', base:'https://api.anthropic.com/v1'},
+    gemini: {format:'gemini', label:'Google Gemini', base:'https://generativelanguage.googleapis.com/v1beta'},
+    qwen: {format:'openai', label:'Qwen / DashScope', base:'https://dashscope.aliyuncs.com/compatible-mode/v1'},
+    openai_compatible: {format:'openai', label:'OpenAI-compatible API'}
+  };
+
+  function trimURL(value) { return String(value || '').trim().replace(/\/+$/, ''); }
+  function joinURL(base, path) { return trimURL(base) + '/' + String(path || '').replace(/^\/+/, ''); }
+  function providerConfig() {
+    const selected = String(ZR.Utils.getPref('modelProvider', 'ollama') || 'ollama');
+    const provider = PROVIDERS[selected] ? selected : 'ollama';
+    const preset = PROVIDERS[provider];
+    if (provider === 'ollama') {
+      const model = String(ZR.Utils.getPref('screeningModel', 'qwen3:8b') || 'qwen3:8b').trim();
+      return {provider, ...preset, base:trimURL(ZR.Utils.getPref('ollamaBaseURL', 'http://127.0.0.1:11434')), model, apiKey:''};
+    }
+    const customBase = provider === 'openai_compatible' ? trimURL(ZR.Utils.getPref('apiBaseURL', '')) : '';
+    const base = customBase || preset.base || '';
+    const model = String(ZR.Utils.getPref('apiModel', '') || preset.model || '').trim();
+    const apiKey = String(ZR.Utils.getPref('apiKey', '') || '').trim();
+    return {provider, ...preset, base, model, apiKey};
+  }
+  function validateProvider(cfg) {
+    if (!cfg.base) throw new Error('API base URL is required for the selected provider');
+    if (!cfg.model) throw new Error('API model is required for the selected provider');
+    if (cfg.provider !== 'ollama' && !cfg.apiKey) throw new Error('API key is required for the selected provider');
+    return cfg;
+  }
+  function modelName() { return validateProvider(providerConfig()).model; }
+  function reasoningEffort() {
+    const value=String(ZR.Utils.getPref('reasoningEffort','auto')||'auto');
+    return ['auto','none','minimal','low','medium','high','xhigh','max'].includes(value)?value:'auto';
+  }
+  function modelID() { const cfg=validateProvider(providerConfig()),base=cfg.provider==='ollama'?cfg.model:`${cfg.provider}:${cfg.model}`,effort=reasoningEffort();return effort==='auto'?base:base+':reasoning='+effort; }
+  function applyReasoning(cfg,body,effort) {
+    if(effort==='auto')return;
+    if(cfg.format==='ollama'){
+      if(/gpt-oss/i.test(cfg.model)){
+        if(!['low','medium','high'].includes(effort))throw new Error('Reasoning setting: Ollama gpt-oss supports low, medium or high');
+        body.think=effort;
+      }else body.think=effort!=='none';
+    }else if(cfg.format==='openai'){
+      if(cfg.provider==='deepseek'){
+        body.thinking={type:effort==='none'?'disabled':'enabled'};
+        if(effort!=='none')body.reasoning_effort=effort;
+      }else body.reasoning_effort=effort;
+      if(cfg.provider==='openai'){body.max_completion_tokens=body.max_tokens;delete body.max_tokens;}
+    }else if(cfg.format==='anthropic'){
+      if(effort==='none'){body.thinking={type:'disabled'};return;}
+      if(/claude-3[-.]|claude-(?:sonnet|opus|haiku)-4(?:$|-[015](?:[-./]|$)|-\d{8}$)/i.test(cfg.model)){
+        if(!['low','medium','high'].includes(effort))throw new Error('Reasoning setting: legacy Claude supports low, medium or high budgets');
+        body.thinking={type:'enabled',budget_tokens:{low:1024,medium:4096,high:8192}[effort]};
+      }else{
+        if(effort==='minimal')throw new Error('Reasoning setting: Claude adaptive thinking does not support minimal');
+        body.thinking={type:'adaptive'};body.output_config.effort=effort;
+      }
+    }else{
+      if(/gemini-2\.5/i.test(cfg.model)){
+        if(!['none','low','medium','high'].includes(effort))throw new Error('Reasoning setting: Gemini 2.5 supports off, low, medium or high budgets');
+        if(effort==='none'&&/pro/i.test(cfg.model))throw new Error('Reasoning setting: Gemini 2.5 Pro thinking cannot be disabled');
+        body.generationConfig.thinkingConfig={thinkingBudget:{none:0,low:1024,medium:4096,high:8192}[effort]};
+      }else{
+        if(!['minimal','low','medium','high'].includes(effort))throw new Error('Reasoning setting: Gemini thinking uses minimal, low, medium or high, depending on model');
+        body.generationConfig.thinkingConfig={thinkingLevel:effort};
+      }
+    }
+  }
+  function timeoutMS(seconds=null) { return Number(seconds || ZR.Utils.getPref('timeoutSeconds', 120)) * 1000; }
+  function responseJSON(xhr) { return JSON.parse(xhr.responseText || xhr.response || '{}'); }
+  async function httpJSON(method, url, {body=null, headers={}, timeout=null}={}) {
+    const options={headers:{...headers},responseType:'text',timeout:timeoutMS(timeout)};
+    if(body!=null){options.body=JSON.stringify(body);options.headers['Content-Type']='application/json';}
+    const xhr=await Zotero.HTTP.request(method,url,options);
+    return responseJSON(xhr);
+  }
+  function providerHeaders(cfg) {
+    if(cfg.format==='anthropic')return {'x-api-key':cfg.apiKey,'anthropic-version':'2023-06-01'};
+    if(cfg.format==='gemini')return {'x-goog-api-key':cfg.apiKey};
+    if(cfg.format==='openai')return {Authorization:`Bearer ${cfg.apiKey}`};
+    return {};
+  }
+  function portableSchema(value) {
+    if(Array.isArray(value))return value.map(portableSchema);
+    if(!value||typeof value!=='object')return value;
+    const out={};
+    for(const [key,item] of Object.entries(value)){
+      if(['maxLength','minLength','pattern'].includes(key))continue;
+      out[key]=portableSchema(item);
+    }
+    if(out.type==='object'&&out.properties&&!Object.prototype.hasOwnProperty.call(out,'additionalProperties'))out.additionalProperties=false;
+    return out;
+  }
+  function mayRetryWithoutStructuredOutput(error) {
+    const status=Number(error?.status||error?.xmlhttp?.status||error?.response?.status||0);
+    return [400,404,409,415,422].includes(status)||/schema|response.?format|output.?config|generation.?config/i.test(String(error?.message||error||''));
+  }
+
   async function request(path, payload, timeoutSeconds = null) {
-    const base = String(ZR.Utils.getPref('ollamaBaseURL', 'http://127.0.0.1:11434')).replace(/\/$/, '');
-    const timeout = Number(timeoutSeconds || ZR.Utils.getPref('timeoutSeconds', 120)) * 1000;
-    const xhr = await Zotero.HTTP.request('POST', base + path, {
-      body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' },
-      responseType: 'text', timeout
-    });
-    return JSON.parse(xhr.responseText || xhr.response || '{}');
+    const cfg=providerConfig();
+    if(cfg.provider!=='ollama')throw new Error('Raw Ollama request is unavailable for remote API providers');
+    return httpJSON('POST',joinURL(cfg.base,path),{body:payload,timeout:timeoutSeconds});
+  }
+
+  async function chat(messages, schema, {maxTokens=1024, timeout=null}={}) {
+    const cfg=validateProvider(providerConfig()), cleanSchema=portableSchema(schema),effort=reasoningEffort();
+    // Thinking shares the output budget; preserve the original limit in default/off mode.
+    if(!['auto','none'].includes(effort))maxTokens=Math.max(maxTokens,['xhigh','max'].includes(effort)?32768:16384);
+    if(cfg.format==='ollama'){
+      const body={model:cfg.model,messages,stream:false,format:schema,think:false,
+        options:{temperature:0,num_ctx:Number(ZR.Utils.getPref('numCtx',16384)),num_predict:maxTokens}};
+      applyReasoning(cfg,body,effort);
+      const raw=await httpJSON('POST',joinURL(cfg.base,'api/chat'),{body,timeout});
+      return {content:String(raw?.message?.content||''),response:raw,provider:cfg.provider,model:cfg.model};
+    }
+    if(cfg.format==='openai'){
+      const body={model:cfg.model,messages,stream:false,max_tokens:maxTokens,response_format:{type:'json_object'}};
+      applyReasoning(cfg,body,effort);
+      let raw;
+      try{raw=await httpJSON('POST',joinURL(cfg.base,'chat/completions'),{body,headers:providerHeaders(cfg),timeout});}
+      catch(e){if(!mayRetryWithoutStructuredOutput(e))throw e;delete body.response_format;raw=await httpJSON('POST',joinURL(cfg.base,'chat/completions'),{body,headers:providerHeaders(cfg),timeout});}
+      return {content:String(raw?.choices?.[0]?.message?.content||''),response:raw,provider:cfg.provider,model:cfg.model};
+    }
+    if(cfg.format==='anthropic'){
+      const system=messages.filter(x=>x.role==='system').map(x=>x.content).join('\n\n');
+      const turns=messages.filter(x=>x.role!=='system').map(x=>({role:x.role==='assistant'?'assistant':'user',content:String(x.content||'')}));
+      const body={model:cfg.model,max_tokens:maxTokens,messages:turns,output_config:{format:{type:'json_schema',schema:cleanSchema}}};
+      if(system)body.system=system;
+      applyReasoning(cfg,body,effort);
+      let raw;
+      try{raw=await httpJSON('POST',joinURL(cfg.base,'messages'),{body,headers:providerHeaders(cfg),timeout});}
+      catch(e){if(!mayRetryWithoutStructuredOutput(e))throw e;delete body.output_config.format;raw=await httpJSON('POST',joinURL(cfg.base,'messages'),{body,headers:providerHeaders(cfg),timeout});}
+      const content=(raw?.content||[]).filter(x=>x.type==='text').map(x=>x.text||'').join('');
+      return {content:String(content),response:raw,provider:cfg.provider,model:cfg.model};
+    }
+    const system=messages.filter(x=>x.role==='system').map(x=>x.content).join('\n\n');
+    const contents=messages.filter(x=>x.role!=='system').map(x=>({role:x.role==='assistant'?'model':'user',parts:[{text:String(x.content||'')}]}));
+    const body={contents,generationConfig:{maxOutputTokens:maxTokens,responseMimeType:'application/json',responseJsonSchema:cleanSchema}};
+    if(system)body.systemInstruction={parts:[{text:system}]};
+    applyReasoning(cfg,body,effort);
+    let raw;
+    const url=joinURL(cfg.base,`models/${encodeURIComponent(cfg.model)}:generateContent`);
+    try{raw=await httpJSON('POST',url,{body,headers:providerHeaders(cfg),timeout});}
+    catch(e){if(!mayRetryWithoutStructuredOutput(e))throw e;delete body.generationConfig.responseMimeType;delete body.generationConfig.responseJsonSchema;raw=await httpJSON('POST',url,{body,headers:providerHeaders(cfg),timeout});}
+    const content=(raw?.candidates?.[0]?.content?.parts||[]).filter(x=>!x.thought).map(x=>x.text||'').join('');
+    return {content:String(content),response:raw,provider:cfg.provider,model:cfg.model};
   }
 
   function jsonSchema(card) {
@@ -367,26 +508,20 @@ ${paper.abstract || '[ABSTRACT NOT AVAILABLE]'}`;
   }
 
   async function screen(paper, card, ev) {
-    const model = String(ZR.Utils.getPref('screeningModel', 'qwen3:8b'));
-    const body = {
-      model, messages: [{ role: 'user', content: prompt(paper, card, ev) }], stream: false,
-      format: jsonSchema(card), think: false,
-      options: { temperature: 0, num_ctx: Number(ZR.Utils.getPref('numCtx', 16384)), num_predict: 1024 }
-    };
-    let resp = await request('/api/chat', body);
-    let content = resp && resp.message && resp.message.content || '';
+    const model = modelID(), messages=[{ role: 'user', content: prompt(paper, card, ev) }], schema=jsonSchema(card);
+    let resp = await chat(messages, schema, {maxTokens:1024});
+    let content = resp.content || '';
     let parsed = ZR.Utils.safeJSON(content, null);
     if (!parsed) {
       // A complex scorecard can exhaust the first response budget mid-JSON.
       // Give the repair attempt enough room to emit a complete object.
-      body.options.num_predict = 2048;
-      body.messages.push({ role: 'assistant', content: content.slice(0, 1000) });
-      body.messages.push({ role: 'user', content: 'Return one compact JSON object matching the schema, with short verbatim supporting_quotes.' });
-      resp = await request('/api/chat', body);
-      content = resp && resp.message && resp.message.content || '';
+      messages.push({ role: 'assistant', content: content.slice(0, 1000) });
+      messages.push({ role: 'user', content: 'Return one compact JSON object matching the schema, with short verbatim supporting_quotes.' });
+      resp = await chat(messages, schema, {maxTokens:2048});
+      content = resp.content || '';
       parsed = ZR.Utils.safeJSON(content, null);
     }
-    if (!parsed) throw new Error('Ollama did not return valid structured JSON after retry');
+    if (!parsed) throw new Error('Model provider did not return valid structured JSON after retry');
     return { judgement: normalize(parsed, card, ev, paper), raw: content, model };
   }
 
@@ -400,12 +535,25 @@ ${paper.abstract || '[ABSTRACT NOT AVAILABLE]'}`;
 
   async function health() {
     try {
-      const base = String(ZR.Utils.getPref('ollamaBaseURL', 'http://127.0.0.1:11434')).replace(/\/$/, '');
-      const x = await Zotero.HTTP.request('GET', base + '/api/tags', { responseType: 'text', timeout: 5000 });
-      const j = JSON.parse(x.responseText || '{}');
-      return { ok: true, models: (j.models || []).map(m => m.name) };
-    } catch (e) { return { ok: false, error: String(e) }; }
+      const cfg=validateProvider(providerConfig());let j,models=[];
+      if(cfg.format==='ollama'){
+        j=await httpJSON('GET',joinURL(cfg.base,'api/tags'),{timeout:5});models=(j.models||[]).map(m=>m.name);
+      }else if(cfg.format==='gemini'){
+        j=await httpJSON('GET',joinURL(cfg.base,'models'),{headers:providerHeaders(cfg),timeout:8});models=(j.models||[]).map(m=>String(m.name||'').replace(/^models\//,''));
+      }else{
+        j=await httpJSON('GET',joinURL(cfg.base,'models'),{headers:providerHeaders(cfg),timeout:8});models=(j.data||j.models||[]).map(m=>m.id||m.name).filter(Boolean);
+      }
+      return {ok:true,provider:cfg.provider,providerLabel:cfg.label,model:cfg.model,models};
+    } catch (e) { const cfg=providerConfig();return {ok:false,provider:cfg.provider,providerLabel:cfg.label,model:cfg.model,error:String(e?.message||e)}; }
   }
 
-  ZR.Ollama = { PROMPT_VERSION, request, jsonSchema, prompt, verifiedQuotes, normalize, screen, embed, health };
+  async function testConnection(){
+    const schema={type:'object',required:['ok'],properties:{ok:{type:'boolean'}}};
+    const response=await chat([{role:'user',content:'Return exactly one JSON object with {"ok": true}.'}],schema,{maxTokens:32,timeout:['auto','none'].includes(reasoningEffort())?30:null});
+    const parsed=ZR.Utils.safeJSON(response.content,null);
+    if(!parsed||parsed.ok!==true)throw new Error('Model API returned an unexpected test response');
+    return {ok:true,provider:response.provider,model:response.model};
+  }
+
+  ZR.Ollama = { PROMPT_VERSION, PROVIDERS, providerConfig, modelName, modelID, request, chat, jsonSchema, prompt, verifiedQuotes, normalize, screen, embed, health, testConnection };
 })(ZR);

@@ -1,0 +1,2 @@
+97a86d91256ab2aaefc87cc91b99bd00f60febbe80e59c3e0747b34eba9da6ef  ZotRadar-5.4.1-zotero10.xpi
+4a6f192162a67607cd8ea6e12da70e0d71a30b8985e638a1d3ded69e2ac0d438  ZotRadar-5.4.1-source.zip
